@@ -6,6 +6,14 @@ A lightweight tool for exploring reliability, availability, and parameter conver
 
 - Node.js 18+
 - Python 3.11
+>  see @Installation tips for download these
+## Using the app
+
+1. Start the backend (see below).
+2. Start the frontend dev server (see below).
+3. Visit http://localhost:5173 in your browser.
+4. Build a scenario by adding components, selecting the system structure, and adjusting plot settings.
+5. Use the converter to switch between MTBF, λ, and availability. Use the plot “Berechnen” button to request the backend solution.
 
 ## Backend setup
 
@@ -18,7 +26,25 @@ py -3.11 -m venv .venv
 pip install -r requirements.txt
 uvicorn app.main:app --reload --port 8000
 ```
-
+>  **Hint (Execution Policy / venv activation fails)**  
+> If you see this error when activating the virtual environment:  
+> `Die Datei "...\.venv\Scripts\Activate.ps1" kann nicht geladen werden, da die Ausführung von Skripts auf diesem System deaktiviert ist.`  
+> there are three clean options:
+>
+> **A) Allow for this session only (recommended):**
+> ```powershell
+> Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+> . .\.venv\Scripts\Activate.ps1
+> ```
+> **B) Loosen permanently for your user:**
+> ```powershell
+> Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
+> . .\.venv\Scripts\Activate.ps1
+> ```
+> **C) Use classic Command Prompt (CMD) without changing policy:**
+> ```bat
+> .venv\Scripts\activate.bat
+> ```
 ### macOS / Linux (bash)
 
 ```bash
@@ -43,26 +69,43 @@ npm run dev
 
 The Vite dev server starts on http://localhost:5173.
 
-## Using the app
+## Installation tips
 
-1. Start the backend (see above).
-2. Start the frontend dev server.
-3. Visit http://localhost:5173 in your browser.
-4. Build a scenario by adding components, selecting the system structure, and adjusting plot settings.
-5. Use the converter to switch between MTBF, λ, and availability. Use the plot “Berechnen” button to request the backend solution.
+### Windows
+#### Python 3.11
+Recommended (PowerShell, Administrator):
+```bash
+winget install Python.Python.3.11
+```
+Or download the installer from https://www.python.org/downloads/release/python-3110/ and check "Add Python to PATH"
 
-## Smoke test checklist
+#### Node.js
+Recommended (PowerShell, Administrator):
+```bash
+winget install OpenJS.NodeJS.LTS
+```
+Or download the LTS installer from nodejs.org.
 
-- Converter → returns JSON with computed MTBF/λ/A.
-- Add two components with exponential parameters → Solve → R(t) line appears.
-- Change system type and re-solve.
-- k-of-n with k and n set → warning banner text visible from backend response.
 
-## How to extend next
+After installation, open a new PowerShell and verify:
+```bash
+python --version
+node --version
+npm --version
+```
+### macOS
 
-1. Add Weibull distribution support to backend models and frontend forms.
-2. Introduce a React Flow canvas tab to visualise reliability block diagrams.
-3. Add a Monte-Carlo simulation route and UI controls for stochastic studies.
+Homebrew (recommended):
+```bash
+brew install python@3.11
+brew install node
+```
+Verify:
+```bash
+python3.11 --version
+node --version
+npm --version
+```
 
 ## Notes
 
