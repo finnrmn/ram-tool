@@ -1,0 +1,33 @@
+# --- Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+.venv/
+venv/
+.env
+.env.*.local
+.pytest_cache/
+.coverage
+dist/
+build/
+
+# --- Node / Frontend
+node_modules/
+pnpm-lock.yaml
+yarn.lock
+.DS_Store
+*.local
+*.cache
+*.log
+*.log.*
+.vite/
+dist/
+coverage/
+
+# --- IDE / System
+.vscode/
+.idea/
+*.iml
+Thumbs.db
