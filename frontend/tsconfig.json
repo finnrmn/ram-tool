@@ -12,7 +12,10 @@
     "esModuleInterop": true,
     "strict": true,
     "jsx": "react-jsx",
-    "types": ["vite/client"]
+    "types": ["vite/client"],
+    "rootDir": "./src",
+    "outDir": "./.tsc-out",
+    "noEmit": true
   },
   "include": ["./src"]
 }

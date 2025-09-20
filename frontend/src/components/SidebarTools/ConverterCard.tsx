@@ -3,6 +3,9 @@ import { useState } from "react";
 import { convert } from "../../api/client";
 import type { ConvertResponse } from "../../types";
 
+const inputClasses =
+  "mt-1 w-full rounded border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition-colors focus:border-sky-400 focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100";
+
 const ConverterCard = () => {
   const [mtbf, setMtbf] = useState("");
   const [lambda, setLambda] = useState("");
@@ -50,13 +53,13 @@ const ConverterCard = () => {
   };
 
   return (
-    <div className="rounded-lg border border-slate-800 bg-slate-900/70 p-4">
-      <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">Converter</h2>
+    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-900/70">
+      <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">Converter</h2>
       <div className="mt-3 space-y-3">
         <div>
-          <label className="text-xs uppercase tracking-wide text-slate-500">MTBF</label>
+          <label className="text-xs uppercase tracking-wide text-slate-600 dark:text-slate-400">MTBF</label>
           <input
-            className="mt-1 w-full rounded border border-slate-700 bg-slate-900 px-3 py-2 text-sm focus:border-sky-400 focus:outline-none"
+            className={inputClasses}
             type="number"
             step="any"
             value={mtbf}
@@ -64,9 +67,9 @@ const ConverterCard = () => {
           />
         </div>
         <div>
-          <label className="text-xs uppercase tracking-wide text-slate-500">λ</label>
+          <label className="text-xs uppercase tracking-wide text-slate-600 dark:text-slate-400">?</label>
           <input
-            className="mt-1 w-full rounded border border-slate-700 bg-slate-900 px-3 py-2 text-sm focus:border-sky-400 focus:outline-none"
+            className={inputClasses}
             type="number"
             step="any"
             value={lambda}
@@ -74,9 +77,9 @@ const ConverterCard = () => {
           />
         </div>
         <div>
-          <label className="text-xs uppercase tracking-wide text-slate-500">MTTR</label>
+          <label className="text-xs uppercase tracking-wide text-slate-600 dark:text-slate-400">MTTR</label>
           <input
-            className="mt-1 w-full rounded border border-slate-700 bg-slate-900 px-3 py-2 text-sm focus:border-sky-400 focus:outline-none"
+            className={inputClasses}
             type="number"
             step="any"
             value={mttr}
@@ -85,20 +88,20 @@ const ConverterCard = () => {
         </div>
         <button
           type="button"
-          className="w-full rounded bg-sky-500 px-4 py-2 text-sm font-medium text-slate-950 hover:bg-sky-400 disabled:cursor-not-allowed disabled:opacity-60"
+          className="w-full rounded bg-sky-500 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-sky-400 disabled:cursor-not-allowed disabled:opacity-60"
           onClick={handleConvert}
           disabled={isLoading}
         >
-          {isLoading ? "Berechne…" : "Berechnen"}
+          {isLoading ? "Berechne..." : "Berechnen"}
         </button>
       </div>
       {error && (
-        <div className="mt-3 rounded border border-rose-500/60 bg-rose-500/10 px-3 py-2 text-xs text-rose-200">
+        <div className="mt-3 rounded border border-rose-300 bg-rose-50 px-3 py-2 text-xs text-rose-700 dark:border-rose-500/60 dark:bg-rose-500/10 dark:text-rose-200">
           {error}
         </div>
       )}
       {result && (
-        <pre className="mt-3 max-h-48 overflow-auto rounded bg-slate-950/80 px-3 py-2 text-xs text-slate-300">
+        <pre className="mt-3 max-h-48 overflow-auto rounded border border-slate-200 bg-slate-100 px-3 py-2 text-xs text-slate-700 dark:border-slate-800 dark:bg-slate-950/80 dark:text-slate-300">
           {JSON.stringify(result, null, 2)}
         </pre>
       )}

@@ -2,17 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  color-scheme: dark;
-}
+@layer base {
+  :root {
+    color-scheme: light;
+  }
 
-body {
-  margin: 0;
-  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
-  background-color: #020617;
-  color: #e2e8f0;
-}
+  .dark {
+    color-scheme: dark;
+  }
 
-button {
-  font-family: inherit;
+  body {
+    @apply m-0 bg-slate-50 text-slate-900 transition-colors duration-200 ease-linear dark:bg-slate-950 dark:text-slate-100;
+    font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  }
+
+  button {
+    font-family: inherit;
+  }
 }

@@ -136,7 +136,7 @@ const Home = ({ apiOffline }: HomeProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100">
+    <div className="min-h-screen bg-slate-50 text-slate-900 transition-colors duration-200 dark:bg-slate-950 dark:text-slate-100">
       <Header
         structure={scenario.structure}
         componentCount={scenario.components.length}
@@ -146,7 +146,7 @@ const Home = ({ apiOffline }: HomeProps) => {
         onReset={handleReset}
       />
       {apiOffline && (
-        <div className="bg-amber-500/10 text-center text-sm text-amber-300">
+        <div className="bg-amber-100 text-center text-sm text-amber-700 dark:bg-amber-500/10 dark:text-amber-300">
           <span className="inline-block py-2">API offline?</span>
         </div>
       )}
@@ -163,9 +163,9 @@ const Home = ({ apiOffline }: HomeProps) => {
             onRemoveComponent={removeComponent}
           />
 
-          <div className="rounded-lg border border-slate-800 bg-slate-900/70 p-5">
+          <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-900/70">
             <div className="flex flex-wrap items-end gap-4">
-              <div className="flex items-center gap-1 rounded border border-slate-800 bg-slate-950/40 p-1">
+              <div className="flex items-center gap-1 rounded border border-slate-300 bg-slate-100/80 p-1 transition-colors dark:border-slate-700 dark:bg-slate-900/60">
                 {plotTabs.map((tab) => {
                   const isActive = activePlotTab === tab.id;
                   return (
@@ -173,7 +173,9 @@ const Home = ({ apiOffline }: HomeProps) => {
                       key={tab.id}
                       type="button"
                       className={`rounded px-3 py-2 text-xs font-semibold uppercase tracking-wide transition-colors ${
-                        isActive ? "bg-sky-500 text-slate-950" : "text-slate-400 hover:text-slate-200"
+                        isActive
+                          ? "bg-sky-500 text-white"
+                          : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
                       }`}
                       onClick={() => setActivePlotTab(tab.id)}
                     >
@@ -185,11 +187,11 @@ const Home = ({ apiOffline }: HomeProps) => {
               {activePlotTab !== "diagram" && (
                 <>
                   <div>
-                    <label className="block text-xs uppercase tracking-wide text-slate-400">
+                    <label className="block text-xs uppercase tracking-wide text-slate-600 dark:text-slate-400">
                       t<sub>max</sub>
                     </label>
                     <input
-                      className="mt-1 w-28 rounded border border-slate-700 bg-slate-900 px-3 py-2 text-sm focus:border-sky-400 focus:outline-none"
+                      className="mt-1 w-28 rounded border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition-colors focus:border-sky-400 focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
                       type="number"
                       min="0"
                       step="any"
@@ -198,9 +200,9 @@ const Home = ({ apiOffline }: HomeProps) => {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs uppercase tracking-wide text-slate-400">Samples</label>
+                    <label className="block text-xs uppercase tracking-wide text-slate-600 dark:text-slate-400">Samples</label>
                     <input
-                      className="mt-1 w-24 rounded border border-slate-700 bg-slate-900 px-3 py-2 text-sm focus:border-sky-400 focus:outline-none"
+                      className="mt-1 w-24 rounded border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition-colors focus:border-sky-400 focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
                       type="number"
                       min="2"
                       step="1"
@@ -208,10 +210,10 @@ const Home = ({ apiOffline }: HomeProps) => {
                       onChange={(event) => handleSamplesChange(event.target.value)}
                     />
                   </div>
-                  <label className="flex items-center gap-2 text-xs uppercase tracking-wide text-slate-400">
+                  <label className="flex items-center gap-2 text-xs uppercase tracking-wide text-slate-600 dark:text-slate-400">
                     <input
                       type="checkbox"
-                      className="h-4 w-4 accent-sky-400"
+                      className="h-4 w-4 accent-sky-500"
                       checked={Boolean(scenario.plotSettings.logScale)}
                       onChange={(event) => handleLogScaleChange(event.target.checked)}
                     />
@@ -219,7 +221,7 @@ const Home = ({ apiOffline }: HomeProps) => {
                   </label>
                   <button
                     type="button"
-                    className="ml-auto rounded bg-sky-500 px-4 py-2 text-sm font-medium text-slate-950 hover:bg-sky-400 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="ml-auto rounded bg-sky-500 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-sky-400 disabled:cursor-not-allowed disabled:opacity-60"
                     onClick={handleSolve}
                     disabled={isSolving}
                   >
@@ -232,7 +234,7 @@ const Home = ({ apiOffline }: HomeProps) => {
             <div className="mt-4">
               <div className={activePlotTab === "reliability" ? "space-y-4" : "hidden"}>
                 {solveError && (
-                  <div className="rounded border border-rose-500/60 bg-rose-500/10 px-3 py-2 text-sm text-rose-200">
+                  <div className="rounded border border-rose-300 bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:border-rose-500/60 dark:bg-rose-500/10 dark:text-rose-200">
                     {solveError}
                   </div>
                 )}
@@ -242,7 +244,7 @@ const Home = ({ apiOffline }: HomeProps) => {
                     {warnings.map((warning) => (
                       <div
                         key={warning}
-                        className="rounded border border-amber-400/60 bg-amber-400/10 px-3 py-2 text-xs text-amber-200"
+                        className="rounded border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-700 dark:border-amber-400/60 dark:bg-amber-400/10 dark:text-amber-200"
                       >
                         {warning}
                       </div>
@@ -261,7 +263,7 @@ const Home = ({ apiOffline }: HomeProps) => {
 
               <div className={activePlotTab === "compare" ? "space-y-3" : "hidden"}>
                 <ComparePlot />
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-slate-600 dark:text-slate-400">
                   Komponentenlinien basieren auf den aktuellen lambda-Werten; bei k-aus-n bleibt die Systemlinie die MVP-Variante.
                 </p>
               </div>
