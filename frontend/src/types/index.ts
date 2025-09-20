@@ -62,3 +62,23 @@ export type SolveRbdResponse = {
   warnings: string[];
   lambdas: number[];
 };
+
+export type AvailabilityCurve = {
+  t: number[];
+  a: number[];
+};
+
+export type AvailabilityKpis = {
+  A_ss: number;
+  A_t0: number;
+  A_tmax: number;
+  t0: number;
+  tmax: number;
+};
+
+export type AvailabilitySolveResponse = {
+  a_curve: AvailabilityCurve;
+  kpis: AvailabilityKpis;
+  warnings: string[];
+};
+

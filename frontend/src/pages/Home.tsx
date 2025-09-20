@@ -5,6 +5,7 @@ import ConverterCard from "../components/SidebarTools/ConverterCard";
 import TemplatesCard from "../components/SidebarTools/TemplatesCard";
 import SystemTable from "../components/SystemTable/SystemTable";
 import RPlot from "../components/Plots/RPlot";
+import APlot from "../components/Plots/APlot";
 import ComparePlot from "../components/Plots/ComparePlot";
 import DiagramCanvas from "../components/Diagram/Canvas";
 import KpiCards from "../components/ResultsPanel/KpiCards";
@@ -255,9 +256,7 @@ const Home = ({ apiOffline }: HomeProps) => {
               </div>
 
               <div className={activePlotTab === "availability" ? "block" : "hidden"}>
-                <div className="flex h-[420px] items-center justify-center rounded border border-slate-800 bg-slate-950/40 text-sm text-slate-500">
-                  A(t)-Plot noch nicht implementiert.
-                </div>
+                <APlot apiOffline={apiOffline} />
               </div>
 
               <div className={activePlotTab === "compare" ? "space-y-3" : "hidden"}>
@@ -282,5 +281,4 @@ const Home = ({ apiOffline }: HomeProps) => {
     </div>
   );
 };
-
 export default Home;

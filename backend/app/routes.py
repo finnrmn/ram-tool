@@ -241,7 +241,7 @@ def solve_availability(scenario: ScenarioModel) -> SolveAvailabilityResponse:
             steady_state = 0.0
             for successes in range(structure.k, n_value + 1):
                 steady_state += comb(n_value, successes) * (average_availability ** successes) * ((1 - average_availability) ** (n_value - successes))
-            warnings.append("k-of-n uses identical-components MVP assumption (availability = average).")
+            warnings.append("k-of-n uses identical-components assumption (MVP).")
         else:
             raise HTTPException(status_code=400, detail="Unsupported structure kind.")
 
@@ -249,7 +249,7 @@ def solve_availability(scenario: ScenarioModel) -> SolveAvailabilityResponse:
         a_values = [steady_state for _ in time_points]
 
     kpis = AvailabilityKpiModel(
-        A_ss=float(a_values[-1]),
+        A_ss=float(steady_state),
         A_t0=float(a_values[0]),
         A_tmax=float(a_values[-1]),
         t0=float(time_points[0]),

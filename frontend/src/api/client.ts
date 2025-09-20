@@ -1,5 +1,11 @@
 import axios from "axios";
-import type { ConvertInput, ConvertResponse, Scenario, SolveRbdResponse } from "../types";
+import type {
+  AvailabilitySolveResponse,
+  ConvertInput,
+  ConvertResponse,
+  Scenario,
+  SolveRbdResponse,
+} from "../types";
 
 const api = axios.create({
   baseURL: "http://localhost:8000/api",
@@ -21,6 +27,11 @@ export const solveRbd = async (scenario: Scenario) => {
   return response.data;
 };
 
-export type { SolveRbdResponse } from "../types";
+export const solveAvailability = async (scenario: Scenario) => {
+  const response = await api.post<AvailabilitySolveResponse>("/solve/availability", scenario);
+  return response.data;
+};
+
+export type { AvailabilitySolveResponse, SolveRbdResponse } from "../types";
 
 export default api;
