@@ -7,7 +7,8 @@ import ReactFlow, {
 } from "reactflow";
 import "reactflow/dist/style.css";
 
-import { solveRbd } from "../../api/client";
+import { solveRbd, type ApiResponse } from "../../api/client";
+import type { SolveRbdResponse } from "../../types";
 import { useScenarioStore } from "../../store/useScenarioStore";
 import { serializeDiagram } from "./serialize";
 import { useDiagramStore } from "./useDiagramStore";
@@ -107,12 +108,16 @@ const Canvas = () => {
       const activeRequest = requestRef.current;
 
       solveRbd(scenarioResult)
-        .then((response) => {
+        .then((response: ApiResponse<SolveRbdResponse>) => {
           if (activeRequest !== requestRef.current) {
             return;
           }
-          const combinedWarnings = [...result.warnings, ...response.warnings];
-          setSolveSuccess(response.kpis, combinedWarnings);
+          if (response.error || !response.data) {
+            setSolveError(response.error ?? "Unbekannter Fehler.");
+            return;
+          }
+          const combinedWarnings = [...result.warnings, ...(response.data.warnings ?? [])];
+          setSolveSuccess(response.data.kpis, combinedWarnings);
           setScenario(scenarioResult);
         })
         .catch((error) => {
@@ -324,21 +329,21 @@ const Canvas = () => {
           <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr),280px]">
             <div className="space-y-3">
               {validation.errors.length > 0 && (
-                <div className="rounded border border-rose-500/60 bg-rose-500/10 px-3 py-2 text-sm text-rose-200">
+                <div className="rounded border border-rose-300 bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:border-rose-500/60 dark:bg-rose-500/10 dark:text-rose-200">
                   {validation.errors[0]}
                 </div>
               )}
 
               {solveStatus === "pending" && (
-                <div className="rounded border border-sky-500/60 bg-sky-500/10 px-3 py-2 text-sm text-sky-200">
+                <div className="rounded border border-sky-300 bg-sky-50 px-3 py-2 text-sm text-sky-700 dark:border-sky-500/60 dark:bg-sky-500/10 dark:text-sky-200">
                   Berechnung laeuft...
                 </div>
               )}
 
               {solveStatus === "success" && kpis && (
-                <div className="rounded border border-emerald-500/60 bg-emerald-500/10 px-3 py-3 text-sm text-emerald-200">
+                <div className="rounded border border-emerald-300 bg-emerald-50 px-3 py-3 text-sm text-emerald-700 dark:border-emerald-500/60 dark:bg-emerald-500/10 dark:text-emerald-200">
                   <div className="font-semibold">[OK] Berechnung erfolgreich</div>
-                  <div className="mt-1 flex flex-wrap gap-4 text-xs text-emerald-100">
+                  <div className="mt-1 flex flex-wrap gap-4 text-xs text-emerald-600 dark:text-emerald-100">
                     <span>R(0) = {formatKpi(kpis.R_t0)}</span>
                     <span>R(t<sub>max</sub>) = {formatKpi(kpis.R_tmax)}</span>
                   </div>
@@ -346,7 +351,7 @@ const Canvas = () => {
               )}
 
               {solveStatus === "error" && solveError && (
-                <div className="rounded border border-rose-500/60 bg-rose-500/10 px-3 py-2 text-sm text-rose-200">
+                <div className="rounded border border-rose-300 bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:border-rose-500/60 dark:bg-rose-500/10 dark:text-rose-200">
                   {solveError}
                 </div>
               )}
@@ -356,7 +361,7 @@ const Canvas = () => {
                   {solveWarnings.map((warning) => (
                     <div
                       key={warning}
-                      className="rounded border border-amber-500/60 bg-amber-500/10 px-3 py-2 text-xs text-amber-200"
+                      className="rounded border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-700 dark:border-amber-500/60 dark:bg-amber-500/10 dark:text-amber-200"
                     >
                       {warning}
                     </div>

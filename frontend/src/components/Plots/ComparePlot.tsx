@@ -1,11 +1,24 @@
-import axios from "axios";
 import { useEffect, useMemo, useState } from "react";
 import Plot from "react-plotly.js";
 
-import { solveRbd } from "../../api/client";
+import { solveRbd, type ApiResponse } from "../../api/client";
 import { useScenarioStore } from "../../store/useScenarioStore";
-import type { SolveRbdResponse } from "../../types";
+import type { Scenario, SolveRbdResponse } from "../../types";
 import { useTheme } from "../../theme/useTheme";
+import { validateScenario } from "../../utils/validateScenario";
+
+const prepareScenario = (scenario: Scenario, activeCount: number): Scenario => {
+  if (scenario.structure.kind !== "kofn") {
+    return scenario;
+  }
+  return {
+    ...scenario,
+    structure: {
+      ...scenario.structure,
+      n: activeCount,
+    },
+  };
+};
 
 const ComparePlot = () => {
   const scenario = useScenarioStore((state) => state.scenario);
@@ -15,46 +28,46 @@ const ComparePlot = () => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const parseError = (value: unknown): string => {
-    if (axios.isAxiosError(value)) {
-      const payload = (value.response?.data ?? {}) as { detail?: unknown };
-      if (typeof payload.detail === "string") {
-        return payload.detail;
-      }
-      if (payload.detail) {
-        return JSON.stringify(payload.detail);
-      }
-      return value.message;
-    }
-    if (value instanceof Error) {
-      return value.message;
-    }
-    return "Unbekannter Fehler.";
-  };
-
   useEffect(() => {
     let isCancelled = false;
     const activeComponents = scenario.components.filter((component) => component.enabled);
     const labels = activeComponents.map((_, index) => `C${index + 1}`);
 
+    const validation = validateScenario(scenario);
+    if (!validation.isValid) {
+      setError(validation.errors.join(" \n"));
+      setComponentLabels(labels);
+      setData(null);
+      setIsLoading(false);
+      return () => {
+        isCancelled = true;
+      };
+    }
+
     setIsLoading(true);
     setError(null);
     setData(null);
 
-    solveRbd(scenario)
-      .then((response) => {
+    const payload = prepareScenario(scenario, validation.activeCount);
+
+    solveRbd(payload)
+      .then((result: ApiResponse<SolveRbdResponse>) => {
         if (isCancelled) {
           return;
         }
-        setData(response);
+        if (result.error || !result.data) {
+          setError(result.error ?? "Unbekannter Fehler.");
+          setComponentLabels(labels);
+          return;
+        }
+        setData(result.data);
         setComponentLabels(labels);
       })
-      .catch((err) => {
-        if (isCancelled) {
-          return;
+      .catch((reason: unknown) => {
+        if (!isCancelled) {
+          setError(reason instanceof Error ? reason.message : "Unbekannter Fehler.");
+          setComponentLabels(labels);
         }
-        setError(parseError(err));
-        setComponentLabels(labels);
       })
       .finally(() => {
         if (!isCancelled) {
@@ -117,12 +130,14 @@ const ComparePlot = () => {
         zeroline: false,
         gridcolor: gridColor,
         linecolor: lineColor,
+        tickcolor: lineColor,
       },
       yaxis: {
         title: "R(t)",
         range: [0, 1],
         gridcolor: gridColor,
         linecolor: lineColor,
+        tickcolor: lineColor,
       },
     };
   }, [isDark]);
@@ -154,18 +169,16 @@ const ComparePlot = () => {
           <div className="flex h-full items-center justify-center text-sm text-slate-500 dark:text-slate-300">
             Berechnung laeuft...
           </div>
+        ) : error ? (
+          <div className="flex h-full items-center justify-center rounded border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700 dark:border-rose-500/60 dark:bg-rose-500/10 dark:text-rose-200">
+            {error}
+          </div>
         ) : (
           <div className="flex h-full items-center justify-center text-sm text-slate-500 dark:text-slate-400">
             Keine Daten verfuegbar. Passe das Szenario an, um eine Loesung zu erhalten.
           </div>
         )}
       </div>
-
-      {error && (
-        <div className="rounded border border-rose-300 bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:border-rose-500/60 dark:bg-rose-500/10 dark:text-rose-200">
-          {error}
-        </div>
-      )}
     </div>
   );
 };

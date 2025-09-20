@@ -1,8 +1,8 @@
 import axios from "axios";
 import { useEffect, useMemo, useState } from "react";
 import Plot from "react-plotly.js";
-import { solveAvailability } from "../../api/client";
-import type { AvailabilityCurve } from "../../types";
+import { solveAvailability, type ApiResponse } from "../../api/client";
+import type { AvailabilityCurve, AvailabilitySolveResponse } from "../../types";
 import { useScenarioStore } from "../../store/useScenarioStore";
 import { useTheme } from "../../theme/useTheme";
 
@@ -68,12 +68,18 @@ const APlot = ({ apiOffline }: APlotProps) => {
     setError(null);
 
     solveAvailability(scenario)
-      .then((result) => {
+      .then((result: ApiResponse<AvailabilitySolveResponse>) => {
         if (!isCurrent) {
           return;
         }
-        setCurve(result.a_curve);
-        setWarnings(result.warnings ?? []);
+        if (result.error || !result.data) {
+          setCurve(null);
+          setWarnings([]);
+          setError(result.error ?? "Unbekannter Fehler.");
+          return;
+        }
+        setCurve(result.data.a_curve);
+        setWarnings(result.data.warnings ?? []);
       })
       .catch((reason) => {
         if (!isCurrent) {
@@ -111,12 +117,14 @@ const APlot = ({ apiOffline }: APlotProps) => {
         zeroline: false,
         gridcolor: gridColor,
         linecolor: lineColor,
+        tickcolor: lineColor,
       },
       yaxis: {
         title: "A(t)",
         range: [0, 1],
         gridcolor: gridColor,
         linecolor: lineColor,
+        tickcolor: lineColor,
       },
     };
   }, [isDark]);
@@ -133,7 +141,7 @@ const APlot = ({ apiOffline }: APlotProps) => {
     if (error) {
       return (
         <div className="flex h-full items-center justify-center text-sm text-rose-700 dark:text-rose-200">
-          Berechnung fehlgeschlagen.
+          {error}
         </div>
       );
     }
@@ -178,12 +186,6 @@ const APlot = ({ apiOffline }: APlotProps) => {
       <div className="h-[420px] rounded border border-slate-200 bg-white shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-900/70">
         {renderPlotBody()}
       </div>
-
-      {error && (
-        <div className="rounded border border-rose-300 bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:border-rose-500/60 dark:bg-rose-500/10 dark:text-rose-200">
-          {error}
-        </div>
-      )}
 
       {warnings.length > 0 && (
         <div className="space-y-2">

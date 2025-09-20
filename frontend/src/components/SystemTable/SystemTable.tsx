@@ -21,7 +21,7 @@ const SystemTable = ({ components, onUpdateComponent, onRemoveComponent }: Syste
             <tr>
               <th className="px-4 py-2 text-left font-medium">Name</th>
               <th className="px-4 py-2 text-left font-medium">Verteilung</th>
-              <th className="px-4 py-2 text-left font-medium">?</th>
+              <th className="px-4 py-2 text-left font-medium normal-case">λ</th>
               <th className="px-4 py-2 text-left font-medium">MTBF</th>
               <th className="px-4 py-2 text-left font-medium">MTTR</th>
               <th className="px-4 py-2 text-right font-medium">Aktionen</th>

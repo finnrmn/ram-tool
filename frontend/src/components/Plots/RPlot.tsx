@@ -28,12 +28,14 @@ const RPlot = ({ data, isLoading }: RPlotProps) => {
         zeroline: false,
         gridcolor: gridColor,
         linecolor: lineColor,
+        tickcolor: lineColor,
       },
       yaxis: {
         title: "R(t)",
         range: [0, 1],
         gridcolor: gridColor,
         linecolor: lineColor,
+        tickcolor: lineColor,
       },
     };
   }, [isDark]);

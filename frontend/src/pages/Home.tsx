@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useState } from "react";
+import type { ApiStatus } from "../App";
 import Header from "../components/Header";
 import ConverterCard from "../components/SidebarTools/ConverterCard";
 import TemplatesCard from "../components/SidebarTools/TemplatesCard";
@@ -10,12 +11,16 @@ import ComparePlot from "../components/Plots/ComparePlot";
 import DiagramCanvas from "../components/Diagram/Canvas";
 import KpiCards from "../components/ResultsPanel/KpiCards";
 import SummaryCard from "../components/ResultsPanel/SummaryCard";
-import { solveRbd } from "../api/client";
-import type { ReliabilityCurve, SolveKpis, Structure } from "../types";
+import { solveRbd, type ApiResponse } from "../api/client";
+import type { ReliabilityCurve, Scenario, SolveKpis, SolveRbdResponse, Structure } from "../types";
 import { useScenarioStore } from "../store/useScenarioStore";
+import { useDebouncedEffect } from "../utils/useDebouncedEffect";
+import { validateScenario } from "../utils/validateScenario";
 
 type HomeProps = {
+  apiStatus: ApiStatus;
   apiOffline: boolean;
+  onRetryHealth?: () => void;
 };
 
 const plotTabs = [
@@ -27,7 +32,7 @@ const plotTabs = [
 
 type PlotTabId = (typeof plotTabs)[number]["id"];
 
-const Home = ({ apiOffline }: HomeProps) => {
+const Home = ({ apiStatus, apiOffline, onRetryHealth }: HomeProps) => {
   const {
     scenario,
     reset,
@@ -42,8 +47,10 @@ const Home = ({ apiOffline }: HomeProps) => {
   const [kpis, setKpis] = useState<SolveKpis | null>(null);
   const [warnings, setWarnings] = useState<string[]>([]);
   const [solveError, setSolveError] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [isSolving, setIsSolving] = useState(false);
   const [activePlotTab, setActivePlotTab] = useState<PlotTabId>("reliability");
+  const [solveTrigger, setSolveTrigger] = useState<number>(0);
 
   const layoutClass =
     activePlotTab === "diagram"
@@ -52,12 +59,12 @@ const Home = ({ apiOffline }: HomeProps) => {
 
   const parseError = (error: unknown): string => {
     if (axios.isAxiosError(error)) {
-      const data = (error.response?.data ?? {}) as { detail?: unknown };
-      if (typeof data.detail === "string") {
-        return data.detail;
+      const payload = (error.response?.data ?? {}) as { detail?: unknown };
+      if (typeof payload.detail === "string") {
+        return payload.detail;
       }
-      if (data.detail) {
-        return JSON.stringify(data.detail);
+      if (payload.detail) {
+        return JSON.stringify(payload.detail);
       }
       return error.message;
     }
@@ -67,22 +74,9 @@ const Home = ({ apiOffline }: HomeProps) => {
     return "Unbekannter Fehler.";
   };
 
-  const handleSolve = async () => {
+  const handleSolve = () => {
     setSolveError(null);
-    setIsSolving(true);
-    try {
-      const result = await solveRbd(scenario);
-      setPlotData(result.r_curve);
-      setKpis(result.kpis);
-      setWarnings(result.warnings);
-    } catch (error) {
-      setPlotData(null);
-      setKpis(null);
-      setWarnings([]);
-      setSolveError(parseError(error));
-    } finally {
-      setIsSolving(false);
-    }
+    setSolveTrigger(Date.now());
   };
 
   const handleReset = () => {
@@ -91,6 +85,7 @@ const Home = ({ apiOffline }: HomeProps) => {
     setKpis(null);
     setWarnings([]);
     setSolveError(null);
+    setValidationErrors([]);
     setActivePlotTab("reliability");
   };
 
@@ -135,19 +130,101 @@ const Home = ({ apiOffline }: HomeProps) => {
     updatePlotSettings({ logScale: checked });
   };
 
+  useDebouncedEffect(
+    () => {
+      if (!solveTrigger) {
+        return;
+      }
+
+      const validation = validateScenario(scenario);
+      if (!validation.isValid) {
+        setValidationErrors(validation.errors);
+        setSolveError(null);
+        setWarnings([]);
+        setPlotData(null);
+        setKpis(null);
+        setIsSolving(false);
+        return;
+      }
+
+      setValidationErrors([]);
+
+      if (apiOffline) {
+        setSolveError("Backend-API ist nicht erreichbar.");
+        setPlotData(null);
+        setKpis(null);
+        setWarnings([]);
+        setIsSolving(false);
+        return;
+      }
+
+      setIsSolving(true);
+
+      const payload: Scenario = {
+        ...scenario,
+        structure:
+          scenario.structure.kind === "kofn"
+            ? {
+                ...scenario.structure,
+                n: validation.activeCount,
+              }
+            : { ...scenario.structure },
+      };
+
+      solveRbd(payload)
+        .then((result: ApiResponse<SolveRbdResponse>) => {
+          if (result.error || !result.data) {
+            setPlotData(null);
+            setKpis(null);
+            setWarnings([]);
+            setSolveError(result.error ?? "Unbekannter Fehler.");
+            return;
+          }
+          setPlotData(result.data.r_curve);
+          setKpis(result.data.kpis);
+          setWarnings(result.data.warnings ?? []);
+          setSolveError(null);
+        })
+        .catch((reason) => {
+          setPlotData(null);
+          setKpis(null);
+          setWarnings([]);
+          setSolveError(parseError(reason));
+        })
+        .finally(() => {
+          setIsSolving(false);
+        });
+    },
+    [solveTrigger, scenario, apiOffline],
+    300,
+  );
+
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 transition-colors duration-200 dark:bg-slate-950 dark:text-slate-100">
+    <div className="min-h-screen bg-white text-slate-900 transition-colors duration-200 dark:bg-slate-950 dark:text-slate-100">
       <Header
         structure={scenario.structure}
         componentCount={scenario.components.length}
+        apiStatus={apiStatus}
+        onRetryHealth={onRetryHealth}
         onKindChange={handleKindChange}
         onKChange={handleKChange}
         onNChange={handleNChange}
         onReset={handleReset}
       />
       {apiOffline && (
-        <div className="bg-amber-100 text-center text-sm text-amber-700 dark:bg-amber-500/10 dark:text-amber-300">
-          <span className="inline-block py-2">API offline?</span>
+        <div className="bg-rose-50 text-center text-sm text-rose-700 dark:bg-rose-900/30 dark:text-rose-200">
+          <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-2">
+            <span>Backend-API ist nicht erreichbar.</span>
+            {onRetryHealth && (
+              <button
+                type="button"
+                className="rounded border border-rose-200 px-3 py-1 text-xs font-semibold text-rose-700 transition-colors hover:bg-rose-100 dark:border-rose-400/40 dark:text-rose-200 dark:hover:bg-rose-900/60"
+                onClick={onRetryHealth}
+              >
+                Erneut versuchen
+              </button>
+            )}
+          </div>
         </div>
       )}
       <div className={`mx-auto flex max-w-screen-2xl flex-col gap-6 px-4 py-6 ${layoutClass}`}>
@@ -233,6 +310,19 @@ const Home = ({ apiOffline }: HomeProps) => {
 
             <div className="mt-4">
               <div className={activePlotTab === "reliability" ? "space-y-4" : "hidden"}>
+                {validationErrors.length > 0 && (
+                  <div className="space-y-2">
+                    {validationErrors.map((message) => (
+                      <div
+                        key={message}
+                        className="rounded border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-700 dark:border-amber-500/60 dark:bg-amber-500/10 dark:text-amber-200"
+                      >
+                        {message}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
                 {solveError && (
                   <div className="rounded border border-rose-300 bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:border-rose-500/60 dark:bg-rose-500/10 dark:text-rose-200">
                     {solveError}

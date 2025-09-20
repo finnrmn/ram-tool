@@ -1,6 +1,5 @@
-import axios from "axios";
 import { useState } from "react";
-import { convert } from "../../api/client";
+import { convert, type ApiResponse } from "../../api/client";
 import type { ConvertResponse } from "../../types";
 
 const inputClasses =
@@ -14,23 +13,6 @@ const ConverterCard = () => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const extractError = (errorValue: unknown): string => {
-    if (axios.isAxiosError(errorValue)) {
-      const data = (errorValue.response?.data ?? {}) as { detail?: unknown };
-      if (typeof data.detail === "string") {
-        return data.detail;
-      }
-      if (data.detail) {
-        return JSON.stringify(data.detail);
-      }
-      return errorValue.message;
-    }
-    if (errorValue instanceof Error) {
-      return errorValue.message;
-    }
-    return "Unbekannter Fehler.";
-  };
-
   const handleConvert = async () => {
     setError(null);
     setIsLoading(true);
@@ -43,10 +25,12 @@ const ConverterCard = () => {
     };
 
     try {
-      const data = await convert(payload);
-      setResult(data);
-    } catch (err) {
-      setError(extractError(err));
+      const response: ApiResponse<ConvertResponse> = await convert(payload);
+      if (response.error || !response.data) {
+        setError(response.error ?? "Unbekannter Fehler.");
+        return;
+      }
+      setResult(response.data);
     } finally {
       setIsLoading(false);
     }
@@ -67,7 +51,7 @@ const ConverterCard = () => {
           />
         </div>
         <div>
-          <label className="text-xs uppercase tracking-wide text-slate-600 dark:text-slate-400">?</label>
+          <label className="text-xs font-semibold tracking-wide text-slate-600 dark:text-slate-400 normal-case">λ</label>
           <input
             className={inputClasses}
             type="number"

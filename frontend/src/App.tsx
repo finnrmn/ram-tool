@@ -1,35 +1,50 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Home from "./pages/Home";
-import { health } from "./api/client";
-import { useTheme } from "./theme/useTheme";
+import { health, type ApiResponse } from "./api/client";
+
+type ApiStatus = "unknown" | "ok" | "off";
+
+type HealthPayload = {
+  status: string;
+};
 
 const App = () => {
-  const [apiOffline, setApiOffline] = useState(false);
-  const { ready } = useTheme();
+  const [apiStatus, setApiStatus] = useState<ApiStatus>("unknown");
 
   useEffect(() => {
-    let isMounted = true;
-    health()
-      .then(() => {
-        if (isMounted) {
-          setApiOffline(false);
-        }
-      })
-      .catch(() => {
-        if (isMounted) {
-          setApiOffline(true);
-        }
-      });
+    let cancelled = false;
+
+    const fetchHealth = async () => {
+      const result: ApiResponse<HealthPayload> = await health();
+      if (cancelled) {
+        return;
+      }
+      if (result.error || result.data?.status?.toLowerCase() !== "ok") {
+        setApiStatus("off");
+      } else {
+        setApiStatus("ok");
+      }
+    };
+
+    fetchHealth();
+    const intervalId = window.setInterval(fetchHealth, 15000);
     return () => {
-      isMounted = false;
+      cancelled = true;
+      window.clearInterval(intervalId);
     };
   }, []);
 
-  if (!ready) {
-    return null;
-  }
+  const apiOffline = useMemo(() => apiStatus === "off", [apiStatus]);
 
-  return <Home apiOffline={apiOffline} />;
+  return <Home apiStatus={apiStatus} apiOffline={apiOffline} onRetryHealth={async () => {
+    const result = await health();
+    if (result.error || result.data?.status?.toLowerCase() !== "ok") {
+      setApiStatus("off");
+    } else {
+      setApiStatus("ok");
+    }
+  }} />;
 };
 
+export type { ApiStatus };
 export default App;
