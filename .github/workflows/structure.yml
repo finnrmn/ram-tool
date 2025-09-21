@@ -1,0 +1,101 @@
+name: Export Project Structure
+
+on:
+  push:
+    branches: [ main ]   # anpassen, falls dein Default-Branch anders heißt
+  workflow_dispatch:     # erlaubt manuellen Start im Actions-Tab
+
+# Für optionales Zurück-Committen ins Repo
+permissions:
+  contents: write
+
+env:
+  # Wir wollen NUR die eigentliche App zeigen:
+  ROOTS: "backend/app frontend/src"
+  # Wie tief der Baum gehen soll (2–4 ist meist gut):
+  MAX_DEPTH: 3
+  # Alles, was NICHT erscheinen soll:
+  EXCLUDES: "node_modules|.git|dist|build|coverage|.next|.turbo|.cache|venv|.venv|__pycache__|.mypy_cache|.pytest_cache|.idea|.vscode|target|out|bin|obj|logs|.gradle|.DS_Store|.github|docs"
+  # Nur Ordner (true) oder Ordner+Dateien (false)
+  FOLDERS_ONLY: "false"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y tree
+          # PDF optional
+          sudo apt-get install -y nodejs npm
+          sudo npm i -g md-to-pdf
+
+      - name: Generate STRUCTURE.md
+        run: |
+          echo "# Projektstruktur" > STRUCTURE.md
+          echo "" >> STRUCTURE.md
+
+          # existierende ROOTS prüfen (falls z.B. nur eins von beiden da ist)
+          FOUND_ROOTS=""
+          for R in $ROOTS; do
+            if [ -d "$R" ]; then
+              FOUND_ROOTS="$FOUND_ROOTS $R"
+            fi
+          done
+          if [ -z "$FOUND_ROOTS" ]; then
+            FOUND_ROOTS="."
+          fi
+
+          for ROOT in $FOUND_ROOTS; do
+            echo "## $ROOT" >> STRUCTURE.md
+            echo "" >> STRUCTURE.md
+            echo "\`\`\`text" >> STRUCTURE.md
+            if [ "${FOLDERS_ONLY}" = "true" ]; then
+              tree -d -L ${MAX_DEPTH} -I "${EXCLUDES}" "${ROOT}" >> STRUCTURE.md
+            else
+              tree -L ${MAX_DEPTH} -I "${EXCLUDES}" "${ROOT}" >> STRUCTURE.md
+            fi
+            echo "\`\`\`" >> STRUCTURE.md
+            echo "" >> STRUCTURE.md
+          done
+
+          # Nützliche Schlüsseldateien ausweisen (werden nur gelistet, wenn vorhanden)
+          echo "## Wichtige Dateien" >> STRUCTURE.md
+          ADD=("backend/requirements.txt" "frontend/package.json" "frontend/tsconfig.json" "frontend/vite.config.ts" "frontend/vite.config.js")
+          ANY=0
+          for f in "${ADD[@]}"; do
+            if compgen -G "$f" > /dev/null; then
+              for g in $f; do
+                echo "- $g" >> STRUCTURE.md
+                ANY=1
+              done
+            fi
+          done
+          if [ $ANY -eq 0 ]; then
+            echo "_(keine gelistet)_" >> STRUCTURE.md
+          fi
+
+      - name: Render STRUCTURE.pdf (optional)
+        run: |
+          md-to-pdf STRUCTURE.md || true
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: project-structure
+          path: |
+            STRUCTURE.md
+            STRUCTURE.pdf
+
+      # OPTIONAL: Ergebnis direkt ins Repo committen
+      - name: Commit STRUCTURE.* back to repo
+        if: ${{ github.ref_name == 'main' }}
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update project structure"
+          file_pattern: |
+            STRUCTURE.md
+            STRUCTURE.pdf
