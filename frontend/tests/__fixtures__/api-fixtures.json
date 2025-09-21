@@ -1,0 +1,168 @@
+{
+  "convert_basic": {
+    "request": {
+      "mtbf": 120.0,
+      "mttr": 8.0
+    },
+    "response": {
+      "A": 0.9375,
+      "lambda": 0.008333333333333333,
+      "mtbf": 120.0,
+      "notes": "ok"
+    }
+  },
+  "distribution_exponential": {
+    "request": {
+      "distribution": {
+        "lambda": 0.0045,
+        "type": "exponential"
+      },
+      "t": [
+        0.0,
+        10.0,
+        50.0,
+        100.0
+      ]
+    },
+    "response": {
+      "notes": "exponential",
+      "r": [
+        1.0,
+        0.9559974818331,
+        0.7985162187593771,
+        0.6376281516217733
+      ]
+    }
+  },
+  "solve_availability_single": {
+    "request": {
+      "components": [
+        {
+          "distribution": {
+            "lambda": 0.0025,
+            "type": "exponential"
+          },
+          "enabled": true,
+          "id": "c1",
+          "mttr": 12.0,
+          "name": "Subsystem"
+        }
+      ],
+      "id": "fixture-availability-single",
+      "plotSettings": {
+        "logScale": false,
+        "samples": 5,
+        "tMax": 240.0
+      },
+      "structure": {
+        "kind": "series"
+      }
+    },
+    "response": {
+      "a_curve": {
+        "a": [
+          1.0,
+          0.9710427011085488,
+          0.9708747660124811,
+          0.9708737920888912,
+          0.9708737864407141
+        ],
+        "t": [
+          0.0,
+          60.0,
+          120.0,
+          180.0,
+          240.0
+        ]
+      },
+      "kpis": {
+        "A_ss": 0.970873786407767,
+        "A_t0": 1.0,
+        "A_tmax": 0.9708737864407141,
+        "t0": 0.0,
+        "tmax": 240.0
+      },
+      "warnings": [
+        "Transient availability based on 2-state Markov model for a single component (MVP)."
+      ]
+    }
+  },
+  "solve_rbd_kofn": {
+    "request": {
+      "components": [
+        {
+          "distribution": {
+            "lambda": 0.003,
+            "type": "exponential"
+          },
+          "enabled": true,
+          "id": "c1",
+          "name": "Pump A"
+        },
+        {
+          "distribution": {
+            "mtbf": 400.0,
+            "type": "exponential"
+          },
+          "enabled": true,
+          "id": "c2",
+          "name": "Pump B"
+        },
+        {
+          "distribution": {
+            "lambda": 0.0025,
+            "type": "exponential"
+          },
+          "enabled": true,
+          "id": "c3",
+          "name": "Pump C"
+        }
+      ],
+      "id": "fixture-kofn",
+      "plotSettings": {
+        "logScale": false,
+        "samples": 6,
+        "tMax": 500.0
+      },
+      "structure": {
+        "k": 2,
+        "kind": "kofn",
+        "n": 3
+      }
+    },
+    "response": {
+      "kpis": {
+        "R_t0": 1.0,
+        "R_tmax": 0.17181907589093626,
+        "t0": 0.0,
+        "tmax": 500.0
+      },
+      "lambdas": [
+        0.003,
+        0.0025,
+        0.0025
+      ],
+      "r_curve": {
+        "r": [
+          1.0,
+          0.8612807302956522,
+          0.6286683246069265,
+          0.42425364740514127,
+          0.27380107908467866,
+          0.17181907589093626
+        ],
+        "t": [
+          0.0,
+          100.0,
+          200.0,
+          300.0,
+          400.0,
+          500.0
+        ]
+      },
+      "warnings": [
+        "k-of-n uses identical-components MVP assumption (lambda = average)."
+      ]
+    }
+  }
+}

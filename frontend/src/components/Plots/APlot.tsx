@@ -1,7 +1,7 @@
-import axios from "axios";
 import { useEffect, useMemo, useState } from "react";
 import Plot from "react-plotly.js";
 import { solveAvailability, type ApiResponse } from "../../api/client";
+import { extractErrorMessage } from "../../lib/api/errors";
 import type { AvailabilityCurve, AvailabilitySolveResponse } from "../../types";
 import { useScenarioStore } from "../../store/useScenarioStore";
 import { useFormulaStore } from "../../store/useFormulaStore";
@@ -26,22 +26,7 @@ const APlot = ({ isActive }: APlotProps) => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const parseError = (reason: unknown): string => {
-    if (axios.isAxiosError(reason)) {
-      const payload = (reason.response?.data ?? {}) as { detail?: unknown };
-      if (typeof payload.detail === "string") {
-        return payload.detail;
-      }
-      if (payload.detail) {
-        return JSON.stringify(payload.detail);
-      }
-      return reason.message;
-    }
-    if (reason instanceof Error) {
-      return reason.message;
-    }
-    return "Unbekannter Fehler.";
-  };
+  const parseError = (reason: unknown): string => extractErrorMessage(reason);
 
   useEffect(() => {
     let isCurrent = true;

@@ -1,4 +1,3 @@
-import axios from "axios";
 import { useState } from "react";
 import Header from "../components/Header";
 import ConverterCard from "../components/SidebarTools/ConverterCard";
@@ -11,6 +10,7 @@ import DiagramCanvas from "../components/Diagram/Canvas";
 import KpiCards from "../components/ResultsPanel/KpiCards";
 import FormulaCard from "../components/Formula/FormulaCard";
 import { solveRbd, type ApiResponse } from "../api/client";
+import { extractErrorMessage } from "../lib/api/errors";
 import type { ReliabilityCurve, Scenario, SolveKpis, SolveRbdResponse, Structure } from "../types";
 import { useScenarioStore } from "../store/useScenarioStore";
 import { useFormulaStore } from "../store/useFormulaStore";
@@ -59,22 +59,7 @@ const Home = () => {
       ? "lg:grid lg:grid-cols-[260px,minmax(0,1fr)] xl:grid-cols-[280px,minmax(0,1fr)]"
       : "lg:grid lg:grid-cols-[280px,1fr,360px]";
 
-  const parseError = (error: unknown): string => {
-    if (axios.isAxiosError(error)) {
-      const payload = (error.response?.data ?? {}) as { detail?: unknown };
-      if (typeof payload.detail === "string") {
-        return payload.detail;
-      }
-      if (payload.detail) {
-        return JSON.stringify(payload.detail);
-      }
-      return error.message;
-    }
-    if (error instanceof Error) {
-      return error.message;
-    }
-    return "Unbekannter Fehler.";
-  };
+  const parseError = (error: unknown): string => extractErrorMessage(error);
 
   const handleSolve = () => {
     setSolveError(null);
