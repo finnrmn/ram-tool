@@ -112,3 +112,4 @@ npm --version
 - All computations use exponential components; k-of-n assumes identical components via averaged λ.
 - Scenario JSON is always available in the right sidebar for manual saving.
 - The backend returns clear 400 errors for invalid scenarios so the UI can surface them inline.
+- Errors are shown contextually (z. B. direkt im Plot oder Converter) anstatt über ein globales Status-Badge.

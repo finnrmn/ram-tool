@@ -19,22 +19,78 @@ const api = axios.create({
 });
 
 const extractErrorMessage = (error: unknown): { message: string; status: number } => {
-  if (axios.isAxiosError(error)) {
-    const detail = error.response?.data as { detail?: unknown } | undefined;
-    if (detail?.detail) {
-      if (typeof detail.detail === "string") {
-        return { message: detail.detail, status: error.response?.status ?? 0 };
+  const buildDetailMessage = (payload: unknown): string | null => {
+    if (!payload) {
+      return null;
+    }
+    if (typeof payload === "string") {
+      return payload;
+    }
+    if (Array.isArray(payload)) {
+      const parts = payload
+        .map((entry) => buildDetailMessage(entry))
+        .filter((value): value is string => Boolean(value));
+      if (parts.length > 0) {
+        return parts.join(" / ");
       }
-      if (typeof detail.detail === "object") {
-        try {
-          return { message: JSON.stringify(detail.detail), status: error.response?.status ?? 0 };
-        } catch (jsonError) {
-          return { message: "Unbekannter Fehler (Detail)", status: error.response?.status ?? 0 };
-        }
+      return null;
+    }
+    if (typeof payload === "object") {
+      const candidate = payload as { msg?: unknown; message?: unknown; detail?: unknown; loc?: unknown };
+      if (candidate.detail) {
+        return buildDetailMessage(candidate.detail);
+      }
+      if (candidate.msg && typeof candidate.msg === "string") {
+        const formatLocation = (loc: unknown): string | null => {
+          if (Array.isArray(loc)) {
+            return loc.map((item) => String(item)).join(".");
+          }
+          if (typeof loc === "string" || typeof loc === "number") {
+            return String(loc);
+          }
+          return null;
+        };
+        const location = formatLocation(candidate.loc);
+        return location ? `${location}: ${candidate.msg}` : candidate.msg;
+      }
+      if (candidate.message && typeof candidate.message === "string") {
+        return candidate.message;
+      }
+      try {
+        return JSON.stringify(payload);
+      } catch (jsonError) {
+        return null;
       }
     }
-    const message = error.message || "Unbekannter Fehler";
-    return { message, status: error.response?.status ?? 0 };
+    return null;
+  };
+
+  if (axios.isAxiosError(error)) {
+    if (!error.response) {
+      if (error.code === "ECONNABORTED") {
+        return { message: "Zeitüberschreitung – Backend hat nicht geantwortet.", status: 0 };
+      }
+      return { message: "Backend ist nicht erreichbar.", status: 0 };
+    }
+
+    const status = error.response.status ?? 0;
+    const data = error.response.data as { detail?: unknown } | string | undefined;
+    const detailMessage =
+      typeof data === "object" && data !== null && "detail" in data
+        ? buildDetailMessage((data as { detail?: unknown }).detail)
+        : buildDetailMessage(data);
+
+    if (detailMessage) {
+      return { message: detailMessage, status };
+    }
+
+    const statusText = error.response.statusText;
+    if (statusText) {
+      return { message: `${statusText} (Status ${status})`, status };
+    }
+
+    const fallbackMessage = error.message || "Unbekannter Fehler";
+    return { message: fallbackMessage, status };
   }
 
   if (error instanceof Error) {

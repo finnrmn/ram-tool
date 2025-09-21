@@ -6,12 +6,9 @@ import type { AvailabilityCurve, AvailabilitySolveResponse } from "../../types";
 import { useScenarioStore } from "../../store/useScenarioStore";
 import { useFormulaStore } from "../../store/useFormulaStore";
 import { useTheme } from "../../theme/useTheme";
+import { validateScenario } from "../../utils/validateScenario";
 
-type APlotProps = {
-  apiOffline: boolean;
-};
-
-const APlot = ({ apiOffline }: APlotProps) => {
+const APlot = () => {
   const scenario = useScenarioStore((state) => state.scenario);
   const { isDark } = useTheme();
   const activeComponents = useMemo(
@@ -57,11 +54,51 @@ const APlot = ({ apiOffline }: APlotProps) => {
       };
     }
 
-    if (apiOffline) {
+    const collectIssues = (): string[] => {
+      const messages: string[] = [];
+      const scenarioValidation = validateScenario(scenario);
+      if (!scenarioValidation.isValid) {
+        messages.push(...scenarioValidation.errors);
+      }
+
+      activeComponents.forEach((component) => {
+        const lambdaValue = typeof component.distribution.lambda === "number" ? component.distribution.lambda : undefined;
+        const mtbfValue = typeof component.distribution.mtbf === "number" ? component.distribution.mtbf : undefined;
+        const hasFailureParameter = (lambdaValue ?? 0) > 0 || (mtbfValue ?? 0) > 0;
+        if (!hasFailureParameter) {
+          messages.push(`Komponente "${component.name}" benötigt λ > 0 oder MTBF > 0.`);
+        }
+
+        const mttrValue = component.mttr;
+        if (typeof mttrValue !== "number" || mttrValue <= 0) {
+          messages.push(`Komponente "${component.name}" benötigt MTTR > 0 für die A(t)-Berechnung.`);
+        }
+      });
+
+      const { structure } = scenario;
+      if (structure.kind === "kofn") {
+        const k = structure.k;
+        const n = structure.n ?? activeComponents.length;
+        if (typeof k !== "number" || !Number.isFinite(k) || k < 1) {
+          messages.push("k-aus-n benötigt ein k ≥ 1.");
+        }
+        if (n !== activeComponents.length) {
+          messages.push("Für k-aus-n muss n der Anzahl aktiver Komponenten entsprechen.");
+        }
+        if (typeof k === "number" && k > n) {
+          messages.push("Für k-aus-n muss gelten: k ≤ n.");
+        }
+      }
+
+      return Array.from(new Set(messages));
+    };
+
+    const issues = collectIssues();
+    if (issues.length > 0) {
       formulaStore.clear();
       setCurve(null);
       setWarnings([]);
-      setError("API ist aktuell nicht erreichbar.");
+      setError(issues.join(" "));
       setIsLoading(false);
       return () => {
         isCurrent = false;
@@ -106,7 +143,7 @@ const APlot = ({ apiOffline }: APlotProps) => {
     return () => {
       isCurrent = false;
     };
-  }, [apiOffline, hasActiveComponents, scenario]);
+  }, [hasActiveComponents, scenario]);
 
   const layout = useMemo(() => {
     const paperColor = isDark ? "#0f172a" : "#ffffff";

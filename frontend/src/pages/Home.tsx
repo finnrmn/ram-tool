@@ -1,6 +1,5 @@
 import axios from "axios";
 import { useState } from "react";
-import type { ApiStatus } from "../App";
 import Header from "../components/Header";
 import ConverterCard from "../components/SidebarTools/ConverterCard";
 import TemplatesCard from "../components/SidebarTools/TemplatesCard";
@@ -18,12 +17,6 @@ import { useFormulaStore } from "../store/useFormulaStore";
 import { useDebouncedEffect } from "../utils/useDebouncedEffect";
 import { validateScenario } from "../utils/validateScenario";
 
-type HomeProps = {
-  apiStatus: ApiStatus;
-  apiOffline: boolean;
-  onRetryHealth?: () => void;
-};
-
 const plotTabs = [
   { id: "reliability", label: "R(t)" },
   { id: "availability", label: "A(t)" },
@@ -33,7 +26,7 @@ const plotTabs = [
 
 type PlotTabId = (typeof plotTabs)[number]["id"];
 
-const Home = ({ apiStatus, apiOffline, onRetryHealth }: HomeProps) => {
+const Home = () => {
   const {
     scenario,
     reset,
@@ -160,16 +153,6 @@ const Home = ({ apiStatus, apiOffline, onRetryHealth }: HomeProps) => {
 
       setValidationErrors([]);
 
-      if (apiOffline) {
-        setSolveError("Backend-API ist nicht erreichbar.");
-        setPlotData(null);
-        setKpis(null);
-        setWarnings([]);
-        setIsSolving(false);
-        clearFormulaContext();
-        return;
-      }
-
       setIsSolving(true);
 
       const payload: Scenario = {
@@ -210,7 +193,7 @@ const Home = ({ apiStatus, apiOffline, onRetryHealth }: HomeProps) => {
           setIsSolving(false);
         });
     },
-    [solveTrigger, scenario, apiOffline],
+    [solveTrigger, scenario],
     300,
   );
 
@@ -219,29 +202,11 @@ const Home = ({ apiStatus, apiOffline, onRetryHealth }: HomeProps) => {
       <Header
         structure={scenario.structure}
         componentCount={scenario.components.length}
-        apiStatus={apiStatus}
-        onRetryHealth={onRetryHealth}
         onKindChange={handleKindChange}
         onKChange={handleKChange}
         onNChange={handleNChange}
         onReset={handleReset}
       />
-      {apiOffline && (
-        <div className="bg-rose-50 text-center text-sm text-rose-700 dark:bg-rose-900/30 dark:text-rose-200">
-          <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-2">
-            <span>Backend-API ist nicht erreichbar.</span>
-            {onRetryHealth && (
-              <button
-                type="button"
-                className="rounded border border-rose-200 px-3 py-1 text-xs font-semibold text-rose-700 transition-colors hover:bg-rose-100 dark:border-rose-400/40 dark:text-rose-200 dark:hover:bg-rose-900/60"
-                onClick={onRetryHealth}
-              >
-                Erneut versuchen
-              </button>
-            )}
-          </div>
-        </div>
-      )}
       <div className={`mx-auto flex max-w-screen-2xl flex-col gap-6 px-4 py-6 ${layoutClass}`}>
         <aside className="space-y-4 lg:sticky lg:top-6">
           <ConverterCard />
@@ -363,7 +328,7 @@ const Home = ({ apiStatus, apiOffline, onRetryHealth }: HomeProps) => {
               </div>
 
               <div className={activePlotTab === "availability" ? "block" : "hidden"}>
-                <APlot apiOffline={apiOffline} />
+                <APlot />
               </div>
 
               <div className={activePlotTab === "compare" ? "space-y-3" : "hidden"}>

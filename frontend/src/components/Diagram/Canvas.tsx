@@ -97,13 +97,14 @@ const Canvas = () => {
       setValidation({ errors: result.errors, warnings: result.warnings });
 
       const scenarioResult = result.scenario;
+      const dedupe = (items: string[]) => Array.from(new Set(items.filter(Boolean)));
       if (!scenarioResult || result.errors.length > 0) {
         const message = result.errors[0] ?? "Diagramm unvollstaendig.";
-        setValidationError(message, result.warnings);
+        setValidationError(message, dedupe(result.warnings));
         return;
       }
 
-      setSolvePending(scenarioResult, result.warnings);
+      setSolvePending(scenarioResult, dedupe(result.warnings));
       requestRef.current += 1;
       const activeRequest = requestRef.current;
 
@@ -116,7 +117,7 @@ const Canvas = () => {
             setSolveError(response.error ?? "Unbekannter Fehler.");
             return;
           }
-          const combinedWarnings = [...result.warnings, ...(response.data.warnings ?? [])];
+          const combinedWarnings = dedupe([...result.warnings, ...(response.data.warnings ?? [])]);
           setSolveSuccess(response.data.kpis, combinedWarnings);
           setScenario(scenarioResult);
         })
@@ -350,7 +351,7 @@ const Canvas = () => {
                 </div>
               )}
 
-              {solveStatus === "error" && solveError && (
+              {solveStatus === "error" && solveError && (validation.errors.length === 0 || solveError !== validation.errors[0]) && (
                 <div className="rounded border border-rose-300 bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:border-rose-500/60 dark:bg-rose-500/10 dark:text-rose-200">
                   {solveError}
                 </div>
