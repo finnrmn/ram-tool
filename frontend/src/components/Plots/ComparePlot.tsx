@@ -3,6 +3,7 @@ import Plot from "react-plotly.js";
 
 import { solveRbd, type ApiResponse } from "../../api/client";
 import { useScenarioStore } from "../../store/useScenarioStore";
+import { useFormulaStore } from "../../store/useFormulaStore";
 import type { Scenario, SolveRbdResponse } from "../../types";
 import { useTheme } from "../../theme/useTheme";
 import { validateScenario } from "../../utils/validateScenario";
@@ -20,7 +21,11 @@ const prepareScenario = (scenario: Scenario, activeCount: number): Scenario => {
   };
 };
 
-const ComparePlot = () => {
+type ComparePlotProps = {
+  isActive: boolean;
+};
+
+const ComparePlot = ({ isActive }: ComparePlotProps) => {
   const scenario = useScenarioStore((state) => state.scenario);
   const { isDark } = useTheme();
   const [data, setData] = useState<SolveRbdResponse | null>(null);
@@ -30,6 +35,14 @@ const ComparePlot = () => {
 
   useEffect(() => {
     let isCancelled = false;
+    const formulaStore = useFormulaStore.getState();
+
+    if (!isActive) {
+      return () => {
+        isCancelled = true;
+      };
+    }
+
     const activeComponents = scenario.components.filter((component) => component.enabled);
     const labels = activeComponents.map((_, index) => `C${index + 1}`);
 
@@ -39,6 +52,7 @@ const ComparePlot = () => {
       setComponentLabels(labels);
       setData(null);
       setIsLoading(false);
+      formulaStore.clear();
       return () => {
         isCancelled = true;
       };
@@ -58,15 +72,18 @@ const ComparePlot = () => {
         if (result.error || !result.data) {
           setError(result.error ?? "Unbekannter Fehler.");
           setComponentLabels(labels);
+          formulaStore.clear();
           return;
         }
         setData(result.data);
         setComponentLabels(labels);
+        formulaStore.setFromRbd(payload, result.data);
       })
       .catch((reason: unknown) => {
         if (!isCancelled) {
           setError(reason instanceof Error ? reason.message : "Unbekannter Fehler.");
           setComponentLabels(labels);
+          formulaStore.clear();
         }
       })
       .finally(() => {
@@ -78,7 +95,7 @@ const ComparePlot = () => {
     return () => {
       isCancelled = true;
     };
-  }, [scenario]);
+  }, [isActive, scenario]);
 
   const traces = useMemo(() => {
     if (!data) {

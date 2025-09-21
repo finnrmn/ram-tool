@@ -10,6 +10,7 @@ import "reactflow/dist/style.css";
 import { solveRbd, type ApiResponse } from "../../api/client";
 import type { SolveRbdResponse } from "../../types";
 import { useScenarioStore } from "../../store/useScenarioStore";
+import { useFormulaStore } from "../../store/useFormulaStore";
 import { serializeDiagram } from "./serialize";
 import { useDiagramStore } from "./useDiagramStore";
 import { isComponentData, isKofNData, type ComponentData } from "./types";
@@ -98,9 +99,11 @@ const Canvas = () => {
 
       const scenarioResult = result.scenario;
       const dedupe = (items: string[]) => Array.from(new Set(items.filter(Boolean)));
+      const formulaStore = useFormulaStore.getState();
       if (!scenarioResult || result.errors.length > 0) {
         const message = result.errors[0] ?? "Diagramm unvollstaendig.";
         setValidationError(message, dedupe(result.warnings));
+        formulaStore.clear();
         return;
       }
 
@@ -115,10 +118,12 @@ const Canvas = () => {
           }
           if (response.error || !response.data) {
             setSolveError(response.error ?? "Unbekannter Fehler.");
+            formulaStore.clear();
             return;
           }
           const combinedWarnings = dedupe([...result.warnings, ...(response.data.warnings ?? [])]);
           setSolveSuccess(response.data.kpis, combinedWarnings);
+          formulaStore.setFromRbd(scenarioResult, response.data);
           setScenario(scenarioResult);
         })
         .catch((error) => {
@@ -126,6 +131,7 @@ const Canvas = () => {
             return;
           }
           setSolveError(parseErrorMessage(error));
+          formulaStore.clear();
         });
     }, 400);
 

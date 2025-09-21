@@ -328,11 +328,11 @@ const Home = () => {
               </div>
 
               <div className={activePlotTab === "availability" ? "block" : "hidden"}>
-                <APlot />
+                <APlot isActive={activePlotTab === "availability"} />
               </div>
 
               <div className={activePlotTab === "compare" ? "space-y-3" : "hidden"}>
-                <ComparePlot />
+                <ComparePlot isActive={activePlotTab === "compare"} />
                 <p className="text-xs text-slate-600 dark:text-slate-400">
                   Komponentenlinien basieren auf den aktuellen lambda-Werten; bei k-aus-n bleibt die Systemlinie die MVP-Variante.
                 </p>

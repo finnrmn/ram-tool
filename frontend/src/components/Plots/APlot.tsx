@@ -8,7 +8,11 @@ import { useFormulaStore } from "../../store/useFormulaStore";
 import { useTheme } from "../../theme/useTheme";
 import { validateScenario } from "../../utils/validateScenario";
 
-const APlot = () => {
+type APlotProps = {
+  isActive: boolean;
+};
+
+const APlot = ({ isActive }: APlotProps) => {
   const scenario = useScenarioStore((state) => state.scenario);
   const { isDark } = useTheme();
   const activeComponents = useMemo(
@@ -42,6 +46,12 @@ const APlot = () => {
   useEffect(() => {
     let isCurrent = true;
     const formulaStore = useFormulaStore.getState();
+
+    if (!isActive) {
+      return () => {
+        isCurrent = false;
+      };
+    }
 
     if (!hasActiveComponents) {
       formulaStore.clear();
@@ -143,7 +153,7 @@ const APlot = () => {
     return () => {
       isCurrent = false;
     };
-  }, [hasActiveComponents, scenario]);
+  }, [hasActiveComponents, isActive, scenario]);
 
   const layout = useMemo(() => {
     const paperColor = isDark ? "#0f172a" : "#ffffff";
