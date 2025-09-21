@@ -4,6 +4,7 @@ import Plot from "react-plotly.js";
 import { solveAvailability, type ApiResponse } from "../../api/client";
 import type { AvailabilityCurve, AvailabilitySolveResponse } from "../../types";
 import { useScenarioStore } from "../../store/useScenarioStore";
+import { useFormulaStore } from "../../store/useFormulaStore";
 import { useTheme } from "../../theme/useTheme";
 
 type APlotProps = {
@@ -43,8 +44,10 @@ const APlot = ({ apiOffline }: APlotProps) => {
 
   useEffect(() => {
     let isCurrent = true;
+    const formulaStore = useFormulaStore.getState();
 
     if (!hasActiveComponents) {
+      formulaStore.clear();
       setCurve(null);
       setWarnings([]);
       setError(null);
@@ -55,6 +58,7 @@ const APlot = ({ apiOffline }: APlotProps) => {
     }
 
     if (apiOffline) {
+      formulaStore.clear();
       setCurve(null);
       setWarnings([]);
       setError("API ist aktuell nicht erreichbar.");
@@ -66,6 +70,7 @@ const APlot = ({ apiOffline }: APlotProps) => {
 
     setIsLoading(true);
     setError(null);
+    formulaStore.clear();
 
     solveAvailability(scenario)
       .then((result: ApiResponse<AvailabilitySolveResponse>) => {
@@ -76,10 +81,12 @@ const APlot = ({ apiOffline }: APlotProps) => {
           setCurve(null);
           setWarnings([]);
           setError(result.error ?? "Unbekannter Fehler.");
+          formulaStore.clear();
           return;
         }
         setCurve(result.data.a_curve);
         setWarnings(result.data.warnings ?? []);
+        formulaStore.setFromAvailability(scenario, result.data);
       })
       .catch((reason) => {
         if (!isCurrent) {
@@ -88,6 +95,7 @@ const APlot = ({ apiOffline }: APlotProps) => {
         setCurve(null);
         setWarnings([]);
         setError(parseError(reason));
+        formulaStore.clear();
       })
       .finally(() => {
         if (isCurrent) {

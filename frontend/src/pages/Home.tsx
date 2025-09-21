@@ -10,10 +10,11 @@ import APlot from "../components/Plots/APlot";
 import ComparePlot from "../components/Plots/ComparePlot";
 import DiagramCanvas from "../components/Diagram/Canvas";
 import KpiCards from "../components/ResultsPanel/KpiCards";
-import SummaryCard from "../components/ResultsPanel/SummaryCard";
+import FormulaCard from "../components/Formula/FormulaCard";
 import { solveRbd, type ApiResponse } from "../api/client";
 import type { ReliabilityCurve, Scenario, SolveKpis, SolveRbdResponse, Structure } from "../types";
 import { useScenarioStore } from "../store/useScenarioStore";
+import { useFormulaStore } from "../store/useFormulaStore";
 import { useDebouncedEffect } from "../utils/useDebouncedEffect";
 import { validateScenario } from "../utils/validateScenario";
 
@@ -52,10 +53,18 @@ const Home = ({ apiStatus, apiOffline, onRetryHealth }: HomeProps) => {
   const [activePlotTab, setActivePlotTab] = useState<PlotTabId>("reliability");
   const [solveTrigger, setSolveTrigger] = useState<number>(0);
 
+  const clearFormulaContext = () => {
+    useFormulaStore.getState().clear();
+  };
+
+  const publishRbdFormulas = (scenarioData: Scenario, data: SolveRbdResponse) => {
+    useFormulaStore.getState().setFromRbd(scenarioData, data);
+  };
+
   const layoutClass =
     activePlotTab === "diagram"
       ? "lg:grid lg:grid-cols-[260px,minmax(0,1fr)] xl:grid-cols-[280px,minmax(0,1fr)]"
-      : "lg:grid lg:grid-cols-[280px,1fr,280px]";
+      : "lg:grid lg:grid-cols-[280px,1fr,360px]";
 
   const parseError = (error: unknown): string => {
     if (axios.isAxiosError(error)) {
@@ -87,6 +96,7 @@ const Home = ({ apiStatus, apiOffline, onRetryHealth }: HomeProps) => {
     setSolveError(null);
     setValidationErrors([]);
     setActivePlotTab("reliability");
+    clearFormulaContext();
   };
 
   const handleKindChange = (kind: Structure["kind"]) => {
@@ -144,6 +154,7 @@ const Home = ({ apiStatus, apiOffline, onRetryHealth }: HomeProps) => {
         setPlotData(null);
         setKpis(null);
         setIsSolving(false);
+        clearFormulaContext();
         return;
       }
 
@@ -155,6 +166,7 @@ const Home = ({ apiStatus, apiOffline, onRetryHealth }: HomeProps) => {
         setKpis(null);
         setWarnings([]);
         setIsSolving(false);
+        clearFormulaContext();
         return;
       }
 
@@ -178,18 +190,21 @@ const Home = ({ apiStatus, apiOffline, onRetryHealth }: HomeProps) => {
             setKpis(null);
             setWarnings([]);
             setSolveError(result.error ?? "Unbekannter Fehler.");
+            clearFormulaContext();
             return;
           }
           setPlotData(result.data.r_curve);
           setKpis(result.data.kpis);
           setWarnings(result.data.warnings ?? []);
           setSolveError(null);
+          publishRbdFormulas(payload, result.data);
         })
         .catch((reason) => {
           setPlotData(null);
           setKpis(null);
           setWarnings([]);
           setSolveError(parseError(reason));
+          clearFormulaContext();
         })
         .finally(() => {
           setIsSolving(false);
@@ -367,7 +382,7 @@ const Home = ({ apiStatus, apiOffline, onRetryHealth }: HomeProps) => {
 
         <aside className={`space-y-4 ${activePlotTab === "diagram" ? "lg:hidden" : ""}`}>
           <KpiCards kpis={kpis} />
-          <SummaryCard scenario={scenario} />
+          <FormulaCard />
         </aside>
       </div>
     </div>

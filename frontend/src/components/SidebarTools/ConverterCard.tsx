@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { convert, type ApiResponse } from "../../api/client";
-import type { ConvertResponse } from "../../types";
+import type { ConvertInput, ConvertResponse } from "../../types";
+import { useFormulaStore } from "../../store/useFormulaStore";
 
 const inputClasses =
   "mt-1 w-full rounded border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition-colors focus:border-sky-400 focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100";
@@ -18,7 +19,10 @@ const ConverterCard = () => {
     setIsLoading(true);
     setResult(null);
 
-    const payload = {
+    const formulaStore = useFormulaStore.getState();
+    formulaStore.clear();
+
+    const payload: ConvertInput = {
       mtbf: mtbf ? Number(mtbf) : null,
       lambda: lambda ? Number(lambda) : null,
       mttr: mttr ? Number(mttr) : null,
@@ -31,6 +35,7 @@ const ConverterCard = () => {
         return;
       }
       setResult(response.data);
+      formulaStore.setFromConverter(payload, response.data);
     } finally {
       setIsLoading(false);
     }
@@ -51,7 +56,7 @@ const ConverterCard = () => {
           />
         </div>
         <div>
-          <label className="text-xs font-semibold tracking-wide text-slate-600 dark:text-slate-400 normal-case">λ</label>
+          <label className="text-xs font-semibold tracking-wide text-slate-600 dark:text-slate-400 normal-case">?</label>
           <input
             className={inputClasses}
             type="number"
