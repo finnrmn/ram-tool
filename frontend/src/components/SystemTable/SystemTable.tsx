@@ -40,7 +40,7 @@ const SystemTable = ({ components, onUpdateComponent, onRemoveComponent }: Syste
         </table>
       </div>
       {components.length === 0 && (
-        <p className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">Fuege Komponenten hinzu, um das System zu beschreiben.</p>
+        <p className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">Füge Komponenten hinzu, um das System zu beschreiben.</p>
       )}
     </div>
   );
