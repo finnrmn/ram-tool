@@ -56,7 +56,7 @@ const ConverterCard = () => {
           />
         </div>
         <div>
-          <label className="text-xs font-semibold tracking-wide text-slate-600 dark:text-slate-400 normal-case">?</label>
+          <label className="text-xs font-semibold tracking-wide text-slate-600 dark:text-slate-400 normal-case">λ</label>
           <input
             className={inputClasses}
             type="number"
