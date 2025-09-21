@@ -23,6 +23,10 @@ frontend/src
 │   ├── Diagram
 │   │   ├── Canvas.tsx
 │   │   ├── nodes
+│   │   │   ├── AndNode.tsx
+│   │   │   ├── ComponentNode.tsx
+│   │   │   ├── KofNNode.tsx
+│   │   │   └── OrNode.tsx
 │   │   ├── serialize.ts
 │   │   ├── types.ts
 │   │   ├── useDiagramStore.ts
@@ -63,7 +67,7 @@ frontend/src
     ├── useDebouncedEffect.ts
     └── validateScenario.ts
 
-17 directories, 30 files
+17 directories, 34 files
 ```
 
 ## Wichtige Dateien
