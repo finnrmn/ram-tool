@@ -13,7 +13,7 @@ env:
   # Wir wollen NUR die eigentliche App zeigen:
   ROOTS: "backend/app frontend/src"
   # Wie tief der Baum gehen soll (2–4 ist meist gut):
-  MAX_DEPTH: 3
+  MAX_DEPTH: 6
   # Alles, was NICHT erscheinen soll:
   EXCLUDES: "node_modules|.git|dist|build|coverage|.next|.turbo|.cache|venv|.venv|__pycache__|.mypy_cache|.pytest_cache|.idea|.vscode|target|out|bin|obj|logs|.gradle|.DS_Store|.github|docs"
   # Nur Ordner (true) oder Ordner+Dateien (false)
