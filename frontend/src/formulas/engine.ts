@@ -86,7 +86,7 @@ const buildParallelReliabilityEquations = (lambdas: number[]): FormulaEquation[]
       title: "Parallel R(t)",
       latexGeneral: "R_{\\text{sys}}(t)=1-\\prod_{i=1}^{n}\\big(1-e^{-\\lambda_i t}\\big)",
       latexWithValues: `R_{\\text{sys}}(t)=1-${product}`,
-      note: "Hinweis: \\mathrm{MTBF}_{\\mathrm{sys}} \\neq 1/\\sum \\lambda_i (MVP).",
+      note: "\\text{Hinweis: } \\mathrm{MTBF}_{\\mathrm{sys}} \\neq \\frac{1}{\\sum \\lambda_i} \\text{ (MVP).}",
     },
   ];
 };

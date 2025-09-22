@@ -100,7 +100,7 @@ const FormulaCard = () => {
               </div>
               {equation.note && (
                 <div className="rounded border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-700 dark:border-amber-400/60 dark:bg-amber-500/10 dark:text-amber-200">
-                  {equation.note}
+                  <BlockMath math={equation.note} />
                 </div>
               )}
             </div>
