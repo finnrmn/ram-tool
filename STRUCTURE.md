@@ -55,7 +55,7 @@ frontend/src
 │   ├── useFormulaStore.ts
 │   └── useScenarioStore.ts
 ├── theme
-│   └── useTheme.ts
+│   └── useTheme.tsx
 ├── types
 │   ├── index.ts
 │   └── react-plotly-js.d.ts
