@@ -5,7 +5,6 @@ files:
   - "electron/dist/**"  
 directories:
   output: "release"
-publish: "never"
 
 win:
   target: [portable]
@@ -15,4 +14,5 @@ win:
 mac:
   target: [zip]         
   identity: null
+  artifactName: "RAM-Tool-${version}-mac.zip"
 
