@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import Plot from "react-plotly.js";
 import type { ReliabilityCurve } from "../../types";
 import { useTheme } from "../../theme/useTheme";
@@ -10,6 +10,8 @@ type RPlotProps = {
 
 const RPlot = ({ data, isLoading }: RPlotProps) => {
   const { isDark } = useTheme();
+  const [revision, setRevision] = useState(0);
+  useEffect(() => setRevision(r => r + 1), [isDark]);
 
   const layout = useMemo(() => {
     const paperColor = isDark ? "#0f172a" : "#ffffff";
@@ -34,11 +36,12 @@ const RPlot = ({ data, isLoading }: RPlotProps) => {
         title: "R(t)",
         range: [0, 1],
         gridcolor: gridColor,
-        linecolor: lineColor,
+        lineColor: lineColor,
         tickcolor: lineColor,
       },
+      datarevision: revision,
     };
-  }, [isDark]);
+  }, [isDark, revision]);
 
   if (isLoading) {
     return (
@@ -58,10 +61,12 @@ const RPlot = ({ data, isLoading }: RPlotProps) => {
 
   return (
     <Plot
+      key={isDark ? "rplot-dark" : "rplot-light"}
+      revision={revision}
       data={[
         {
-          x: data.t,
-          y: data.r,
+          x: [...data.t],
+          y: [...data.r],
           type: "scatter",
           mode: "lines",
           line: { color: "#38bdf8", width: 2 },
@@ -70,7 +75,8 @@ const RPlot = ({ data, isLoading }: RPlotProps) => {
       ]}
       layout={layout}
       config={{ displayModeBar: false, responsive: true }}
-      style={{ width: "100%", height: "100%" }}
+      useResizeHandler
+      style={{ width: "100%", height: "100%", background: "transparent" }}
     />
   );
 };

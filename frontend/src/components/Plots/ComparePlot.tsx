@@ -28,6 +28,8 @@ type ComparePlotProps = {
 const ComparePlot = ({ isActive }: ComparePlotProps) => {
   const scenario = useScenarioStore((state) => state.scenario);
   const { isDark } = useTheme();
+  const [revision, setRevision] = useState(0);
+  useEffect(() => setRevision(r => r + 1), [isDark]);
   const [data, setData] = useState<SolveRbdResponse | null>(null);
   const [componentLabels, setComponentLabels] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -104,8 +106,8 @@ const ComparePlot = ({ isActive }: ComparePlotProps) => {
 
     const timePoints = data.r_curve.t;
     const systemTrace = {
-      x: timePoints,
-      y: data.r_curve.r,
+      x: [...timePoints],
+      y: [...data.r_curve.r],
       type: "scatter" as const,
       mode: "lines" as const,
       name: "System R(t)",
@@ -117,8 +119,8 @@ const ComparePlot = ({ isActive }: ComparePlotProps) => {
       const label = componentLabels[index] ?? `C${index + 1}`;
       const curve = timePoints.map((time) => Math.exp(-lambda * time));
       return {
-        x: timePoints,
-        y: curve,
+        x: [...timePoints],
+        y: [...curve],
         type: "scatter" as const,
         mode: "lines" as const,
         name: label,
@@ -156,8 +158,9 @@ const ComparePlot = ({ isActive }: ComparePlotProps) => {
         linecolor: lineColor,
         tickcolor: lineColor,
       },
+      datarevision: revision,
     };
-  }, [isDark]);
+  }, [isDark, revision]);
 
   return (
     <div className="space-y-3">
@@ -177,10 +180,13 @@ const ComparePlot = ({ isActive }: ComparePlotProps) => {
       <div className="h-[420px] rounded border border-slate-200 bg-white shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-900/70">
         {data ? (
           <Plot
+            key={isDark ? "compare-dark" : "compare-light"}
+            revision={revision}
             data={traces}
             layout={layout}
             config={{ displayModeBar: false, responsive: true }}
-            style={{ width: "100%", height: "100%" }}
+            useResizeHandler
+            style={{ width: "100%", height: "100%", background: "transparent" }}
           />
         ) : isLoading ? (
           <div className="flex h-full items-center justify-center text-sm text-slate-500 dark:text-slate-300">

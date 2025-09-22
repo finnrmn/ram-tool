@@ -15,6 +15,8 @@ type APlotProps = {
 const APlot = ({ isActive }: APlotProps) => {
   const scenario = useScenarioStore((state) => state.scenario);
   const { isDark } = useTheme();
+  const [revision, setRevision] = useState(0);
+  useEffect(() => setRevision(r => r + 1), [isDark]);
   const activeComponents = useMemo(
     () => scenario.components.filter((component) => component.enabled),
     [scenario.components],
@@ -166,8 +168,9 @@ const APlot = ({ isActive }: APlotProps) => {
         linecolor: lineColor,
         tickcolor: lineColor,
       },
+      datarevision: revision,
     };
-  }, [isDark]);
+  }, [isDark, revision]);
 
   const renderPlotBody = () => {
     if (!hasActiveComponents) {
@@ -204,10 +207,12 @@ const APlot = ({ isActive }: APlotProps) => {
 
     return (
       <Plot
+        key={isDark ? "aplot-dark" : "aplot-light"}
+        revision={revision}
         data={[
           {
-            x: curve.t,
-            y: curve.a,
+            x: [...curve.t],
+            y: [...curve.a],
             type: "scatter",
             mode: "lines",
             line: { color: "#facc15", width: 2 },
@@ -216,7 +221,8 @@ const APlot = ({ isActive }: APlotProps) => {
         ]}
         layout={layout}
         config={{ displayModeBar: false, responsive: true }}
-        style={{ width: "100%", height: "100%" }}
+        useResizeHandler
+        style={{ width: "100%", height: "100%", background: "transparent" }}
       />
     );
   };
