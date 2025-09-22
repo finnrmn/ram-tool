@@ -86,7 +86,7 @@ const buildParallelReliabilityEquations = (lambdas: number[]): FormulaEquation[]
       title: "Parallel R(t)",
       latexGeneral: "R_{\\text{sys}}(t)=1-\\prod_{i=1}^{n}\\big(1-e^{-\\lambda_i t}\\big)",
       latexWithValues: `R_{\\text{sys}}(t)=1-${product}`,
-      note: "\\text{Hinweis: } \\mathrm{MTBF}_{\\mathrm{sys}} \\neq \\frac{1}{\\sum \\lambda_i} \\text{ (MVP).}",
+      note: "\\text{Hinweis: } \\mathrm{MTBF}_{\\mathrm{sys}} \\neq \\frac{1}{\\sum \\lambda_i} \\text{ .}",
     },
   ];
 };
@@ -109,7 +109,7 @@ const buildKofnReliabilityEquations = (lambdas: number[], k: number, n: number):
         "R(t)=\\sum_{i=k}^{n} \\binom{n}{i} R_c(t)^i\\big(1-R_c(t)\\big)^{n-i}",
       latexWithValues:
         `R(t)=\\sum_{i=${k}}^{${n}} \\binom{${n}}{i} R_c(t)^i\\big(1-R_c(t)\\big)^{${n}-i}`,
-      note: "Annahme: identische Komponenten (MVP).",
+      note: "\\text{Annahme: identische Komponenten}",
     },
     {
       id: "rbd-kofn-rc",
@@ -176,7 +176,7 @@ export const buildConverterContext = (input: ConvertInput, result: ConvertRespon
       latexGeneral: "A=\\frac{\\mathrm{MTBF}}{\\mathrm{MTBF}+\\mathrm{MTTR}}",
       latexWithValues:
         `A=\\frac{${formatNumber(mtbfValue)}}{${formatNumber(mtbfValue)}+${formatNumber(mttrValue)}}=${formatNumber(availability ?? 0)}`,
-      note: "Steady-State-Availability (MVP).",
+      note: "\\text{Steady-State-Availability}",
     });
   }
 
@@ -194,7 +194,7 @@ const buildSingleComponentAvailability = (
         id: "availability-single-missing",
         title: "A(t)",
         latexGeneral: "A(t)=A_{ss}+(A(0)-A_{ss})e^{-(\\lambda+\\mu)t}",
-        note: "MTTR fehlt fuer Einzelkomponente.",
+        note: "\\text{MTTR fehlt für Einzelkomponente.}",
       },
     ];
   }
@@ -207,7 +207,7 @@ const buildSingleComponentAvailability = (
         id: "availability-single-missing-lambda",
         title: "A(t)",
         latexGeneral: "A(t)=A_{ss}+(1-A_{ss})e^{-(\\lambda+\\mu)t}",
-        note: "lambda oder MTBF fehlen (MVP).",
+        note: "\\text{lambda oder MTBF fehlen}",
       },
     ];
   }
@@ -225,7 +225,7 @@ const buildSingleComponentAvailability = (
       title: "A(t)",
       latexGeneral: "A(t)=A_{ss}+(A(0)-A_{ss})e^{-(\\lambda+\\mu)t}",
       latexWithValues: `A(t)=${steadyFormatted}+(1-${steadyFormatted})e^{-(${lambdaFormatted}+${muFormatted})t}=${steadyFormatted}+(1-${steadyFormatted})e^{- ${totalRateFormatted} t}`,
-      note: "Annahme: A(0)=1, 2-Zustandsmodell (MVP).",
+      note: "\\text{Annahme: A(0)=1, 2-Zustandsmodell}",
     },
     {
       id: "availability-single-steady",
@@ -253,7 +253,7 @@ const buildPerComponentAvailabilityEquations = (scenario: Scenario): FormulaEqua
           id: `availability-component-${index}`,
           title: availabilitySymbol(index),
           latexGeneral: "A_i=\\frac{\\mathrm{MTBF}_i}{\\mathrm{MTBF}_i+\\mathrm{MTTR}_i}",
-          note: "MTBF oder MTTR fehlen (MVP).",
+          note: "\\text{MTBF oder MTTR fehlen.}",
         } as FormulaEquation;
       }
       const availability = mtbfValue / (mtbfValue + mttrValue);
@@ -315,7 +315,7 @@ const buildParallelAvailabilityEquation = (scenario: Scenario, response: Availab
     title: "Parallel A_{sys}",
     latexGeneral: "A_{\\text{sys}}=1-\\prod_{i=1}^{n}(1-A_i)",
     latexWithValues,
-    note: "Hinweis: identische Annahmen fuer parallele Availability (MVP).",
+    note: "\\TEXT{Hinweis: identische Annahmen für parallele Availability.}",
   };
 };
 
@@ -350,7 +350,7 @@ const buildKofnAvailabilityEquation = (
         averageFormatted !== null
           ? `A_{\\text{sys}}=\\sum_{i=${kValue}}^{${nValue}} \\binom{${nValue}}{i} ${averageFormatted}^{\,i}(1-${averageFormatted})^{${nValue}-i}`
           : undefined,
-      note: "Annahme: identische Availability fuer alle Komponenten (MVP).",
+      note: "\\text{Annahme: identische Availability}",
     },
   ];
 

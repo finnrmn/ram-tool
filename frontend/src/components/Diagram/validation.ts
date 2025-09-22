@@ -13,7 +13,7 @@ export const validateComponentParams = (component: ComponentData) => {
   const ok = hasLambda || hasMtbf;
   const warnings: string[] = [];
   if (!ok) {
-    warnings.push(`Komponente "${component.name || component.kind}" benoetigt lambda oder MTBF > 0.`);
+    warnings.push(`Komponente "${component.name || component.kind}" benötigt lambda oder MTBF > 0.`);
   }
   return { ok, warnings };
 };

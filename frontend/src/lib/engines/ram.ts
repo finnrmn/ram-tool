@@ -196,7 +196,7 @@ export const solveRbdScenario = (scenario: ScenarioModel): SolveRbdResponse => {
         const rc = rExp(averageRate, time);
         return reliabilityKofNIdentical(rc, k, n);
       });
-      warnings.push("k-of-n uses identical-components MVP assumption (lambda = average).");
+      warnings.push("k-of-n uses identical-components assumption (lambda = average).");
       break;
     }
     default:
@@ -261,7 +261,7 @@ const computeSteadyStateAvailability = (
       }
       return {
         value: steadyState,
-        warnings: ["k-of-n uses identical-components assumption (MVP)."],
+        warnings: ["k-of-n uses identical-components assumption ."],
       };
     }
     default:
@@ -293,7 +293,7 @@ export const solveAvailabilityScenario = (scenario: ScenarioModel): SolveAvailab
         t0: timePoints[0],
         tmax: timePoints[timePoints.length - 1],
       },
-      warnings: ["Transient availability based on 2-state Markov model for a single component (MVP)."],
+      warnings: ["Transient availability based on 2-state Markov model for a single component ."],
     };
   }
 
@@ -324,7 +324,7 @@ export const solveAvailabilityScenario = (scenario: ScenarioModel): SolveAvailab
   );
 
   warnings.push(
-    "A(t) uses steady-state aggregation; transient effects are not modeled for multi-component systems (MVP).",
+    "A(t) uses steady-state aggregation; transient effects are not modeled for multi-component systems .",
   );
 
   const steadyCurve = timePoints.map(() => steadyState);

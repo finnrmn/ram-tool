@@ -269,7 +269,7 @@ const Canvas = () => {
 
     return (
       <div className="space-y-2 text-sm text-slate-500">
-        <p>Root-Knoten benoetigt keine weiteren Eigenschaften.</p>
+        <p>Root-Knoten benötigt keine weiteren Eigenschaften.</p>
       </div>
     );
   };
