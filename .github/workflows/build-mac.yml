@@ -2,9 +2,6 @@ name: build-mac
 
 on:
   workflow_dispatch: {}         # manueller Start
-  # optional zusätzlich:
-  # push:
-  #   branches: [ main, plots ]
 
 jobs:
   mac:
