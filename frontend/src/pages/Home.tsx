@@ -20,8 +20,8 @@ import { validateScenario } from "../utils/validateScenario";
 const plotTabs = [
   { id: "reliability", label: "R(t)" },
   { id: "availability", label: "A(t)" },
-  { id: "compare", label: "Vergleich" },
-  { id: "diagram", label: "Diagramm" },
+  { id: "compare", label: "Komponeten-Vergleich" },
+  { id: "diagram", label: "System-Builder" },
 ] as const;
 
 type PlotTabId = (typeof plotTabs)[number]["id"];
