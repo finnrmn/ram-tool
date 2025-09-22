@@ -1,17 +1,5 @@
 # Projektstruktur
 
-## backend/app
-
-```text
-backend/app
-├── core
-│   └── config.py
-├── main.py
-└── routes.py
-
-2 directories, 3 files
-```
-
 ## frontend/src
 
 ```text
@@ -52,6 +40,14 @@ frontend/src
 ├── formulas
 │   └── engine.ts
 ├── index.css
+├── lib
+│   ├── api
+│   │   ├── errors.ts
+│   │   ├── index.ts
+│   │   └── types.ts
+│   ├── engines
+│   │   └── ram.ts
+│   └── validation.ts
 ├── main.tsx
 ├── pages
 │   └── Home.tsx
@@ -67,11 +63,10 @@ frontend/src
     ├── useDebouncedEffect.ts
     └── validateScenario.ts
 
-17 directories, 34 files
+20 directories, 39 files
 ```
 
 ## Wichtige Dateien
-- backend/requirements.txt
 - frontend/package.json
 - frontend/tsconfig.json
 - frontend/vite.config.ts
