@@ -31,3 +31,8 @@ coverage/
 .idea/
 *.iml
 Thumbs.db
+
+# --- Build / Release
+.release/
+package-lock.json
+artifacts/
