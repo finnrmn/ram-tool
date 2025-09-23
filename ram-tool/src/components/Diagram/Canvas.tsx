@@ -182,17 +182,17 @@ const Canvas = () => {
       return (
         <div className="space-y-3">
           <div>
-            <label className="text-xs uppercase tracking-wide text-slate-400">Name</label>
+            <label className="text-xs uppercase tracking-wide text-slate-600 dark:text-slate-400">Name</label>
             <input
-              className="mt-1 w-full rounded border border-slate-700 bg-slate-900 px-3 py-2 text-sm focus:border-sky-400 focus:outline-none"
+              className="mt-1 w-full rounded border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-sky-400 focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
               value={selectedComponentData?.name ?? ""}
               onChange={(event) => handleComponentFieldChange("name")(event.target.value)}
             />
           </div>
           <div>
-            <label className="text-xs uppercase tracking-wide text-slate-400">lambda</label>
+            <label className="text-xs uppercase tracking-wide text-slate-600 dark:text-slate-400">lambda</label>
             <input
-              className="mt-1 w-full rounded border border-slate-700 bg-slate-900 px-3 py-2 text-sm focus:border-sky-400 focus:outline-none"
+              className="mt-1 w-full rounded border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-sky-400 focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
               type="number"
               step="any"
               value={selectedComponentData?.lambda ?? ""}
@@ -200,9 +200,9 @@ const Canvas = () => {
             />
           </div>
           <div>
-            <label className="text-xs uppercase tracking-wide text-slate-400">MTBF</label>
+            <label className="text-xs uppercase tracking-wide text-slate-600 dark:text-slate-400">MTBF</label>
             <input
-              className="mt-1 w-full rounded border border-slate-700 bg-slate-900 px-3 py-2 text-sm focus:border-sky-400 focus:outline-none"
+              className="mt-1 w-full rounded border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-sky-400 focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
               type="number"
               step="any"
               value={selectedComponentData?.mtbf ?? ""}
@@ -210,9 +210,9 @@ const Canvas = () => {
             />
           </div>
           <div>
-            <label className="text-xs uppercase tracking-wide text-slate-400">MTTR</label>
+            <label className="text-xs uppercase tracking-wide text-slate-600 dark:text-slate-400">MTTR</label>
             <input
-              className="mt-1 w-full rounded border border-slate-700 bg-slate-900 px-3 py-2 text-sm focus:border-sky-400 focus:outline-none"
+              className="mt-1 w-full rounded border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-sky-400 focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
               type="number"
               step="any"
               value={selectedComponentData?.mttr ?? ""}
@@ -220,13 +220,13 @@ const Canvas = () => {
             />
           </div>
           {!paramsValidation.ok && (
-            <div className="rounded border border-amber-400/60 bg-amber-400/10 px-3 py-2 text-xs text-amber-200">
+            <div className="rounded border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-700 dark:border-amber-500/60 dark:bg-amber-400/10 dark:text-amber-200">
               {paramsValidation.warnings[0]}
             </div>
           )}
           <button
             type="button"
-            className="w-full rounded border border-rose-500 px-3 py-2 text-sm font-medium text-rose-200 hover:bg-rose-500/10"
+            className="w-full rounded border border-rose-500 px-3 py-2 text-sm font-medium text-rose-700 hover:bg-rose-50 dark:border-rose-500 dark:text-rose-200 dark:hover:bg-rose-500/10"
             onClick={handleRemoveSelected}
           >
             Komponente entfernen
@@ -241,9 +241,9 @@ const Canvas = () => {
       return (
         <div className="space-y-3">
           <div>
-            <label className="text-xs uppercase tracking-wide text-slate-400">k</label>
+            <label className="text-xs uppercase tracking-wide text-slate-600 dark:text-slate-400">k</label>
             <input
-              className="mt-1 w-full rounded border border-slate-700 bg-slate-900 px-3 py-2 text-sm focus:border-amber-400 focus:outline-none"
+              className="mt-1 w-full rounded border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-amber-400 focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-amber-400"
               type="number"
               min={1}
               step={1}
@@ -252,9 +252,9 @@ const Canvas = () => {
             />
           </div>
           <div>
-            <label className="text-xs uppercase tracking-wide text-slate-400">n (Anzahl Komponenten)</label>
+            <label className="text-xs uppercase tracking-wide text-slate-600 dark:text-slate-400">n (Anzahl Komponenten)</label>
             <input
-              className="mt-1 w-full cursor-not-allowed rounded border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-400"
+              className="mt-1 w-full cursor-not-allowed rounded border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400"
               value={n}
               readOnly
             />
@@ -312,7 +312,7 @@ const Canvas = () => {
             </button>
           </aside>
 
-          <div className="rounded-lg border border-slate-800 bg-slate-950/60 p-4 text-sm text-slate-200">
+          <div className="rounded-lg border border-slate-200 bg-white/80 p-4 text-sm text-slate-900 dark:border-slate-800 dark:bg-slate-950/60 dark:text-slate-200">
             {renderProperties()}
           </div>
         </div>
