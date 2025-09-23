@@ -7,10 +7,10 @@ jobs:
   mac:
     runs-on: macos-latest
 
-    # run-Schritte standardmäßig in frontend/ ausführen
+    
     defaults:
       run:
-        working-directory: frontend
+        working-directory: ram-tool
 
     steps:
       - name: Checkout
