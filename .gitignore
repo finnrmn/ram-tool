@@ -33,6 +33,6 @@ coverage/
 Thumbs.db
 
 # --- Build / Release
-.release/
+release/
 package-lock.json
 artifacts/
