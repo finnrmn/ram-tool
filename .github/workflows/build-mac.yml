@@ -56,11 +56,3 @@ jobs:
           name: ram-tool-mac
           # Pfad ist relativ zum Repo-Root, deshalb "ram-tool/…"
           path: ram-tool/release/*.zip
-
-      # (optional) effektive Config mit hochladen, super zum Debuggen
-      - name: builder-effective-config hochladen
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: builder-effective-config
-          path: ram-tool/release/builder-effective-config.yaml
