@@ -1,6 +1,0 @@
-node_modules/
-dist/
-.vite/
-.tsc-out/
-src/**/*.js
-src/**/*.js.map
