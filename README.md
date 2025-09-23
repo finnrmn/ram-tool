@@ -11,7 +11,7 @@ A lightweight tool for exploring reliability, availability, and parameter conver
 In a new terminal:
 
 ```bash
-cd frontend
+cd ram-tool
 npm install
 npm run dev
 ```
@@ -55,4 +55,31 @@ Verify:
 node --version
 npm --version
 ```
+
+## BUILDING (not relevant for Users)
+
+### Win.exe
+```bash
+npm run build:renderer
+npm run build:electron
+npx electron-builder --win portable -c electron/electron-builder.yml
+```
+>Sign-Error-Handling
+
+(Powershell as Admin)
+```bash
+setx CSC_IDENTITY_AUTO_DISCOVERY false
+setx WIN_CSC_LINK ""
+setx CSC_LINK ""
+setx CSC_KEY_PASSWORD ""
+```
+
+### Mac.zip
+```bash
+gh workflow run "build-mac" --ref main -R finnrmn/ram-tool
+gh run watch -R finnrmn/ram-tool
+gh run download -R finnrmn/ram-tool --name ram-tool-mac --dir artifacts
+```
+
+
 

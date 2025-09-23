@@ -10,7 +10,7 @@ win:
   target: [portable]
   sign: false   
   signAndEditExecutable: false
-  artifactName: "RAM-Tool-${version}.exe"
+  artifactName: "RAM-Tool-${version}-win.exe"
 mac:
   target: [zip]         
   identity: null
