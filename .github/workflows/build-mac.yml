@@ -1,30 +1,42 @@
 name: build-mac
 
 on:
-  workflow_dispatch: {}         # manueller Start
+  workflow_dispatch: {}   # nur manuell
+
+permissions:
+  contents: read
 
 jobs:
   mac:
     runs-on: macos-latest
 
-    
+    # alle "run" Schritte im Unterordner ram-tool
     defaults:
       run:
         working-directory: ram-tool
 
     steps:
-      - name: Checkout
+      - name: Checkout (gewählten Branch bauen)
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}   # z.B. refs/heads/build beim Start
 
       - name: Node installieren
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
+          cache: npm
+          # robust: nimm das Lockfile im Unterordner
+          cache-dependency-path: ram-tool/package-lock.json
 
       - name: Dependencies installieren
-        run: npm ci
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci --no-audit --no-fund
+          else
+            echo "package-lock.json fehlt – fallback auf npm install"
+            npm install --no-audit --no-fund
+          fi
 
       - name: Renderer bauen (Vite, base=./ via mode desktop)
         run: npm run build:renderer
@@ -33,12 +45,22 @@ jobs:
         run: npm run build:electron
 
       - name: macOS ZIP bauen (unsigniert)
-        run: npx electron-builder --mac zip --publish never -c electron/electron-builder.yml
+        run: npx electron-builder --mac zip -c electron/electron-builder.yml -o
         env:
-          CSC_IDENTITY_AUTO_DISCOVERY: false   # Sign-Erkennung sicher aus
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+          DEBUG: electron-builder
 
       - name: ZIP als Artifact hochladen
         uses: actions/upload-artifact@v4
         with:
           name: ram-tool-mac
-          path: frontend/release/*.zip   # Pfad ist relativ zum Repo-Root
+          # Pfad ist relativ zum Repo-Root, deshalb "ram-tool/…"
+          path: ram-tool/release/*.zip
+
+      # (optional) effektive Config mit hochladen, super zum Debuggen
+      - name: builder-effective-config hochladen
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: builder-effective-config
+          path: ram-tool/release/builder-effective-config.yaml
