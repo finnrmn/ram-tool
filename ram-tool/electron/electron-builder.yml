@@ -8,6 +8,7 @@ directories:
 
 win:
   target: [portable]
+  icon: "electron/icons/favicon.ico"
   sign: false   
   signAndEditExecutable: false
   artifactName: "RAM-Tool-${version}-win.exe"
