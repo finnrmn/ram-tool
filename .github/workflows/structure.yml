@@ -1,9 +1,7 @@
 name: Export Project Structure
 
 on:
-  push:
-    branches: [ main ]   # anpassen, falls dein Default-Branch anders heißt
-  workflow_dispatch:     # erlaubt manuellen Start im Actions-Tab
+  workflow_dispatch:
 
 # Für optionales Zurück-Committen ins Repo
 permissions:
