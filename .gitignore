@@ -34,3 +34,4 @@ Thumbs.db
 
 .release/
 package-lock.json
+artifacts/
